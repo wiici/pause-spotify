@@ -1,4 +1,4 @@
-set(RESUME_SPOTIFY_TARGET ${CMAKE_PROJECT_NAME})
+set(PAUSE_SPOTIFY_TARGET ${CMAKE_PROJECT_NAME})
 
 set(SOURCE_FILES main.cpp
 				 pause_spotify_app.cpp
@@ -23,9 +23,9 @@ if (MSVC)
 	string(REGEX REPLACE "/W[3|4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
-add_executable(${RESUME_SPOTIFY_TARGET} ${SOURCE_FILES})
-target_link_libraries(${RESUME_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
-target_compile_definitions(${RESUME_SPOTIFY_TARGET} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=1>)
-target_compile_options(${RESUME_SPOTIFY_TARGET} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4>)
-set_target_properties(${RESUME_SPOTIFY_TARGET} PROPERTIES CXX_STANDARD 17)
-set_target_properties(${RESUME_SPOTIFY_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+add_executable(${PAUSE_SPOTIFY_TARGET} ${SOURCE_FILES})
+target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
+target_compile_definitions(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=1>)
+target_compile_options(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4>)
+set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES CXX_STANDARD 17)
+set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
