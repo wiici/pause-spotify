@@ -1,0 +1,6 @@
+#directories
+build/
+.vs/
+
+# files
+CMakeSettings.json

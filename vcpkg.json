@@ -1,0 +1,9 @@
+{
+  "name": "resumespotify",
+  "version-string": "0.0.1",
+  "dependencies": [
+    "spdlog",
+    "curl",
+    "boost-program-options"
+  ]
+}
