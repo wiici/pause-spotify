@@ -1,5 +1,8 @@
 set(PAUSE_SPOTIFY_TARGET ${CMAKE_PROJECT_NAME})
 
+# Need to do this while building with VCPKG_TARGET_TRIPLET=x64-windows-static
+string(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
 find_package(spdlog CONFIG REQUIRED)
 find_package(CURL CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
