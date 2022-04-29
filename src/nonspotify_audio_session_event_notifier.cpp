@@ -31,7 +31,6 @@ HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
     }
 
     *ppAudioSessionNotifier = pAudioSessionNotifier;
-    (*ppAudioSessionNotifier)->AddRef();
 
     return S_OK;
 
@@ -64,15 +63,23 @@ HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid,
 
 unsigned long NonSpotifyAudioSessionEventNotifier::AddRef()
 {
+    SPDLOG_TRACE("NonSpotifyAudioSessionEventNotifier::AddRef: m_refCounter "
+                 "{} -> {} for <{}>",
+                 m_refCounter, m_refCounter + 1, fmt::ptr(this));
+
     return InterlockedIncrement(&m_refCounter);
 }
 
 unsigned long NonSpotifyAudioSessionEventNotifier::Release()
 {
+    SPDLOG_TRACE("NonSpotifyAudioSessionEventNotifier::Release: m_refCounter "
+                 "{} -> {} for <{}>",
+                 m_refCounter, m_refCounter - 1, fmt::ptr(this));
+
     auto decrementedVal = InterlockedDecrement(&m_refCounter);
     if (decrementedVal == 0) {
         SPDLOG_DEBUG(
-            "Going to delete object of NonSpotifyAudioSessionEventNotifier {}",
+            "Going to release NonSpotifyAudioSessionEventNotifier object {}",
             fmt::ptr(this));
 
         delete this;

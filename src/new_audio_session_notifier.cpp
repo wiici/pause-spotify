@@ -31,7 +31,6 @@ HRESULT NewAudioSessionNotifier::CreateInstance(
     }
 
     *ppNewAudioSessionNotifier = pNewAudioSessionNotifier;
-    (*ppNewAudioSessionNotifier)->AddRef();
 
     return S_OK;
 
@@ -63,11 +62,19 @@ HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
 
 unsigned long NewAudioSessionNotifier::AddRef()
 {
+    SPDLOG_TRACE(
+        "NewAudioSessionNotifier::AddRef: m_refCounter {} -> {} for <{}>",
+        m_refCounter, m_refCounter + 1, fmt::ptr(this));
+
     return InterlockedIncrement(&m_refCounter);
 }
 
 unsigned long NewAudioSessionNotifier::Release()
 {
+    SPDLOG_TRACE(
+        "NewAudioSessionNotifier::Release: m_refCounter {} -> {} for <{}>",
+        m_refCounter, m_refCounter - 1, fmt::ptr(this));
+
     auto newRefVal = InterlockedDecrement(&m_refCounter);
     if (newRefVal == 0) {
         SPDLOG_DEBUG("Going to release NewAudioSessionNotifier object {}",
