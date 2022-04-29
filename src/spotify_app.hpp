@@ -7,17 +7,23 @@ enum class SpotifyOperationType { Play, Pause };
 
 class SpotifyApp {
 private:
-    static std::string m_token;
+    std::string m_token;
+    SpotifyApp() = default;
+    SpotifyApp(const std::string_view token);
 
 public:
-    SpotifyApp() = delete;
-    ~SpotifyApp() = delete;
+    SpotifyApp(const SpotifyApp&) = delete;
+    SpotifyApp& operator=(const SpotifyApp&) = delete;
+
+    ~SpotifyApp() = default;
+
+    static SpotifyApp& GetInstance();
 
     static bool IsSpotifyProcess(const unsigned int pid);
     static void DoOperation(const SpotifyOperationType type);
     static void SetAccessToken(const std::string_view token);
 
 private:
-    static void Pause();
-    static void Play();
+    void pause();
+    void play();
 };

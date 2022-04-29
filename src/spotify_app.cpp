@@ -6,8 +6,6 @@
 #include <curl/curl.h>
 #include <spdlog/spdlog.h>
 
-std::string SpotifyApp::m_token;
-
 void logCurlFailure(const CURLcode err, const char* line)
 {
     spdlog::error("CURL failed at line \"{}\". Reason is \"{}\"", line,
@@ -20,6 +18,14 @@ void logCurlFailure(const CURLcode err, const char* line)
         logCurlFailure(HR_VAR_NAME, #x);                                       \
         throw std::runtime_error("Runtime error related to winapi.");          \
     }
+
+SpotifyApp::SpotifyApp(const std::string_view token) : m_token(token) {}
+
+SpotifyApp& SpotifyApp::GetInstance()
+{
+    static SpotifyApp instance;
+    return instance;
+}
 
 bool SpotifyApp::IsSpotifyProcess(const unsigned int pid)
 {
@@ -63,12 +69,14 @@ bool SpotifyApp::IsSpotifyProcess(const unsigned int pid)
 
 void SpotifyApp::DoOperation(const SpotifyOperationType type)
 {
+    auto& spotifyAppInstance = SpotifyApp::GetInstance();
+
     switch (type) {
         case SpotifyOperationType::Play:
-            Play();
+            spotifyAppInstance.play();
             break;
         case SpotifyOperationType::Pause:
-            Pause();
+            spotifyAppInstance.pause();
             break;
         default:
             spdlog::warn("Unrecognized operation type for Spotify application");
@@ -80,10 +88,10 @@ void SpotifyApp::SetAccessToken(const std::string_view token)
 {
     spdlog::debug("Spotify access token set to \"{}\"", token);
 
-    m_token = token;
+    SpotifyApp::GetInstance().m_token = token;
 }
 
-void SpotifyApp::Pause()
+void SpotifyApp::pause()
 {
     // Pause spotify using curl
 
@@ -126,7 +134,7 @@ void SpotifyApp::Pause()
     curl_slist_free_all(headers);
 }
 
-void SpotifyApp::Play()
+void SpotifyApp::play()
 {
     CURL* curl = nullptr;
 
