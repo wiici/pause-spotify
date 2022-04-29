@@ -1,33 +1,38 @@
 #include "audio_session_manager.hpp"
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 #include <psapi.h>
-
 #include <list>
+
+namespace wrl = Microsoft::WRL;
 
 AudioSessionManager::AudioSessionManager(
     IAudioSessionManager2& audioSessionManager2)
-    : m_uptrAudioSessionManager2(&audioSessionManager2, COMdeleter),
-      m_audioSessions(getAllAudioSessions()),
-      m_uptrNewAudioSessionNotifier(
-          new NewAudioSessionNotifier(m_audioSessions), COMdeleter)
+    : m_pAudioSessionManager2(&audioSessionManager2),
+      m_audioSessions(getAllAudioSessions())
 {
-    auto hr = m_uptrAudioSessionManager2->RegisterSessionNotification(
-        static_cast<IAudioSessionNotification*>(
-            m_uptrNewAudioSessionNotifier.get()));
+    auto hr = NewAudioSessionNotifier::CreateInstance(
+        m_audioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
 
     if (FAILED(hr)) {
         throw _com_error(hr);
     }
 
-    spdlog::debug("+ Register notification about new audio session event");
+    hr = m_pAudioSessionManager2->RegisterSessionNotification(
+        m_pNewAudioSessionNotifier.Get());
+
+    if (FAILED(hr)) {
+        throw _com_error(hr);
+    }
+
+    spdlog::debug("+++ Register notification about new audio session event");
 }
 
 AudioSessionManager::~AudioSessionManager()
 {
-    if (m_uptrAudioSessionManager2) {
-        auto hr = m_uptrAudioSessionManager2->UnregisterSessionNotification(
-            m_uptrNewAudioSessionNotifier.get());
+    if (m_pAudioSessionManager2) {
+        auto hr = m_pAudioSessionManager2->UnregisterSessionNotification(
+            m_pNewAudioSessionNotifier.Get());
         if (FAILED(hr)) {
             _com_error error(hr);
             spdlog::warn("Failed to unregister event notification about new "
@@ -36,23 +41,21 @@ AudioSessionManager::~AudioSessionManager()
         }
         else {
             spdlog::debug(
-                "- Unregister notification about new audio session event");
+                "--- Unregister notification about new audio session event");
         }
     }
 }
 
 AudioSessionList AudioSessionManager::getAllAudioSessions()
 {
-    IAudioSessionEnumerator* pSessionList = nullptr;
-    auto hr = m_uptrAudioSessionManager2->GetSessionEnumerator(&pSessionList);
+    wrl::ComPtr<IAudioSessionEnumerator> pSessionList;
+    auto hr = m_pAudioSessionManager2->GetSessionEnumerator(pSessionList.GetAddressOf());
     if (FAILED(hr)) {
         throw _com_error(hr);
     }
-    std::unique_ptr<IAudioSessionEnumerator, decltype(COMdeleter)>
-        uptrSessionList(pSessionList, COMdeleter);
 
     int sessionCount = 0;
-    hr = uptrSessionList->GetCount(&sessionCount);
+    hr = pSessionList->GetCount(&sessionCount);
     if (FAILED(hr)) {
         throw _com_error(hr);
     }
@@ -60,9 +63,9 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
     std::list<AudioSessionController> allAudioSessions;
 
     for (int i = 0; i < sessionCount; ++i) {
-        IAudioSessionControl* pAudioSessionControl = nullptr;
-        IAudioSessionControl2* pAudioSessionControl2 = nullptr;
-        hr = uptrSessionList->GetSession(i, &pAudioSessionControl);
+        wrl::ComPtr<IAudioSessionControl> pAudioSessionControl;
+        wrl::ComPtr<IAudioSessionControl2> pAudioSessionControl2;
+        hr = pSessionList->GetSession(i, pAudioSessionControl.GetAddressOf());
         if (FAILED(hr)) {
             _com_error err(hr);
             spdlog::warn("Failed to get {} audio session controller from the "
@@ -71,8 +74,7 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
         }
         else {
             hr = pAudioSessionControl->QueryInterface(
-                __uuidof(IAudioSessionControl2),
-                reinterpret_cast<void**>(&pAudioSessionControl2));
+                IID_PPV_ARGS(pAudioSessionControl2.GetAddressOf()));
             if (FAILED(hr)) {
                 _com_error err(hr);
                 spdlog::warn("Failed to query interface related to audio "
@@ -80,10 +82,8 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
                              err.ErrorMessage());
             }
             else {
-                SAFE_RELEASE(pAudioSessionControl);
-
                 allAudioSessions.emplace_back(
-                    AudioSessionController(pAudioSessionControl2));
+                    AudioSessionController(pAudioSessionControl2.Detach()));
             }
         }
     }

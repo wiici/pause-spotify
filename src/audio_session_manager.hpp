@@ -3,12 +3,13 @@
 #include "new_audio_session_notifier.hpp"
 #include "audio_session_list.hpp"
 
+#include <wrl/client.h>
 #include <memory>
 
 class AudioSessionManager {
 private:
-	std::unique_ptr<IAudioSessionManager2, decltype(COMdeleter)> m_uptrAudioSessionManager2;
-	std::unique_ptr<NewAudioSessionNotifier, decltype(COMdeleter)> m_uptrNewAudioSessionNotifier;
+    Microsoft::WRL::ComPtr<IAudioSessionManager2> m_pAudioSessionManager2;
+    Microsoft::WRL::ComPtr<NewAudioSessionNotifier> m_pNewAudioSessionNotifier;
 	AudioSessionList m_audioSessions;
 
 public:

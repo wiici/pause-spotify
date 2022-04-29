@@ -1,7 +1,6 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
-
+#include <spdlog/spdlog.h>
 #include <cassert>
 #include <comdef.h>
 
@@ -29,12 +28,6 @@ void logHRESULT(HRESULT hresult, const char* fullFilenamePath,
         logHRESULT(HR_VAR_NAME, __FILE__, __LINE__);                           \
         throw std::runtime_error("Runtime error related to winapi.");          \
     }
-
-auto COMdeleter = [](auto* T) {
-    assert(T != nullptr);
-    SPDLOG_DEBUG("Going to release COM object {}\n", fmt::ptr(T));
-    T->Release();
-};
 
 std::string utf16_to_utf8(const wchar_t* utf16_string);
 

@@ -1,8 +1,11 @@
 #include "new_audio_session_notifier.hpp"
 #include "misc.hpp"
-#include "spdlog/spdlog.h"
 
+#include <spdlog/spdlog.h>
 #include <psapi.h>
+#include <wrl/client.h>
+
+namespace wrl = Microsoft::WRL;
 
 NewAudioSessionNotifier::NewAudioSessionNotifier(AudioSessionList& m_audioSessions)
     : m_audioSessions(m_audioSessions)
@@ -12,6 +15,33 @@ NewAudioSessionNotifier::NewAudioSessionNotifier(AudioSessionList& m_audioSessio
 }
 
 NewAudioSessionNotifier::~NewAudioSessionNotifier() {}
+
+HRESULT NewAudioSessionNotifier::CreateInstance(
+    AudioSessionList& audioSessions,
+    NewAudioSessionNotifier** ppNewAudioSessionNotifier)
+{
+    HRESULT hr = S_OK;
+
+    auto pNewAudioSessionNotifier = new NewAudioSessionNotifier(audioSessions);
+
+    if (pNewAudioSessionNotifier == nullptr) {
+        hr = E_OUTOFMEMORY;
+
+        goto err;
+    }
+
+    *ppNewAudioSessionNotifier = pNewAudioSessionNotifier;
+    (*ppNewAudioSessionNotifier)->AddRef();
+
+    return S_OK;
+
+err:
+    if (pNewAudioSessionNotifier) {
+        delete pNewAudioSessionNotifier;
+    }
+
+    return hr;
+}
 
 HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
 {
@@ -33,9 +63,7 @@ HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
 
 unsigned long NewAudioSessionNotifier::AddRef()
 {
-    auto newRefVal = InterlockedIncrement(&m_refCounter);
-
-    return newRefVal;
+    return InterlockedIncrement(&m_refCounter);
 }
 
 unsigned long NewAudioSessionNotifier::Release()
@@ -53,10 +81,8 @@ unsigned long NewAudioSessionNotifier::Release()
 
 HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSession)
 {
-    IAudioSessionControl2* pNewSessionControl2 = nullptr;
-    auto hr = pNewSession->QueryInterface(
-        __uuidof(IAudioSessionControl2),
-        reinterpret_cast<void**>(&pNewSessionControl2));
+    wrl::ComPtr<IAudioSessionControl2> pNewSessionControl2;
+    auto hr = pNewSession->QueryInterface(IID_PPV_ARGS(pNewSessionControl2.GetAddressOf()));
 
     if (FAILED(hr)) {
         _com_error err(hr);
@@ -67,7 +93,7 @@ HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSess
         return E_FAIL;
     }
 
-    AudioSessionController newAudioSession(pNewSessionControl2);
+    AudioSessionController newAudioSession(pNewSessionControl2.Detach());
 
     spdlog::debug("Received information about new audio session for PID {}",
                   newAudioSession.getRelatedPID());

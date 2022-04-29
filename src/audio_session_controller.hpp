@@ -4,18 +4,18 @@
 #include "nonspotify_audio_session_event_notifier.hpp"
 
 #include <memory>
+#include <wrl/client.h>
 
 class AudioSessionController {
 private:
-    std::unique_ptr<IAudioSessionControl2, decltype(COMdeleter)>
-        m_uptrAudioSessionControl2 = {nullptr, COMdeleter};
+    Microsoft::WRL::ComPtr<IAudioSessionControl2> m_pAudioSessionControl2;
     unsigned long m_relatedPID = 0;
+    Microsoft::WRL::ComPtr<NonSpotifyAudioSessionEventNotifier>
+        m_pAudioSessionNotifier;
     std::string m_relatedProcessName = "<unknown>";
-    std::unique_ptr<NonSpotifyAudioSessionEventNotifier, decltype(COMdeleter)>
-        m_uptrAudioSessionNotifier = {nullptr, COMdeleter};
 
 public:
-    AudioSessionController(IAudioSessionControl2* obj);
+    AudioSessionController(IAudioSessionControl2* pSessionController);
     AudioSessionController(AudioSessionController&& obj);
     AudioSessionController& operator=(AudioSessionController&& obj);
 

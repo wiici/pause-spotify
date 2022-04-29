@@ -6,19 +6,22 @@
 #include <memory>
 #include <string>
 
-
-
 class NonSpotifyAudioSessionEventNotifier : public IAudioSessionEvents {
 private:
     long m_refCounter = 1;
     const std::string m_relatedProcessName = "<unknown>";
     const DWORD m_relatedPID = 0;
 
-public:
     NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
                                         const DWORD relatedPID);
+
+public:
     NonSpotifyAudioSessionEventNotifier() = delete;
     ~NonSpotifyAudioSessionEventNotifier();
+
+    static HRESULT CreateInstance(
+        const std::string& relatedProcessName, const DWORD relatedPID,
+        NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier);
 
     HRESULT QueryInterface(REFIID riid, void** ppv) override;
     unsigned long AddRef() override;

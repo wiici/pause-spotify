@@ -3,12 +3,12 @@
 #include "audio_session_manager.hpp"
 #include "misc.hpp"
 
-#include <memory>
+#include <wrl/client.h>
 #include <mmdeviceapi.h>
 
 class DefaultAudioRenderingEndpoint {
 private:
-    std::unique_ptr<IMMDevice, decltype(COMdeleter)> m_uptrDefaultDevice;
+    Microsoft::WRL::ComPtr<IMMDevice> m_uptrDefaultDevice;
 
 public:
     DefaultAudioRenderingEndpoint();

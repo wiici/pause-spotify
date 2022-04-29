@@ -42,7 +42,7 @@ std::string GetProcessExecName(const DWORD pid)
 
     DWORD test = pid;
     auto hProcess =
-        OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, test);
+        OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, test);
 
     if (hProcess == nullptr) {
         spdlog::error("ERROR! Cannot open process for PID {}. Error is {}", pid,

@@ -1,11 +1,12 @@
 #include "nonspotify_audio_session_event_notifier.hpp"
 #include "spotify_app.hpp"
 
-#include "spdlog/spdlog.h"
+#include <spdlog/spdlog.h>
 
 NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
     const std::string& relatedProcessName, const DWORD relatedPID)
-    : m_relatedProcessName(relatedProcessName), m_relatedPID(relatedPID)
+    : m_relatedProcessName(relatedProcessName), 
+      m_relatedPID(relatedPID)
 {
     SPDLOG_DEBUG("Creating instance of NonSpotifyAudioSessionEventNotifier for "
                  "process {} (PID {}): {}",
@@ -13,6 +14,34 @@ NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
 }
 
 NonSpotifyAudioSessionEventNotifier::~NonSpotifyAudioSessionEventNotifier() {}
+
+HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
+    const std::string& relatedProcessName, const DWORD relatedPID,
+    NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
+{
+    HRESULT hr = S_OK;
+
+    auto pAudioSessionNotifier =
+        new NonSpotifyAudioSessionEventNotifier(relatedProcessName, relatedPID);
+
+    if (pAudioSessionNotifier == nullptr) {
+        hr = E_OUTOFMEMORY;
+
+        goto err;
+    }
+
+    *ppAudioSessionNotifier = pAudioSessionNotifier;
+    (*ppAudioSessionNotifier)->AddRef();
+
+    return S_OK;
+
+err:
+    if (pAudioSessionNotifier) {
+        delete pAudioSessionNotifier;
+    }
+
+    return hr;
+}
 
 HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid,
                                                             void** ppv)
@@ -35,9 +64,7 @@ HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid,
 
 unsigned long NonSpotifyAudioSessionEventNotifier::AddRef()
 {
-    auto incrementedVal = InterlockedIncrement(&m_refCounter);
-
-    return incrementedVal;
+    return InterlockedIncrement(&m_refCounter);
 }
 
 unsigned long NonSpotifyAudioSessionEventNotifier::Release()
@@ -101,12 +128,12 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
         case AudioSessionStateActive:
             stateName.append("ACTIVE");
             spdlog::debug("-----> PAUSE SPOTIFY");
-             SpotifyApp::DoOperation(SpotifyOperationType::Pause);
+            //SpotifyApp::DoOperation(SpotifyOperationType::Pause);
             break;
         case AudioSessionStateInactive:
             stateName.append("INACTIVE");
             spdlog::debug("-----> PLAY SPOTIFY");
-             SpotifyApp::DoOperation(SpotifyOperationType::Play);
+            //SpotifyApp::DoOperation(SpotifyOperationType::Play);
             break;
         case AudioSessionStateExpired:
             stateName.append("EXPIRED");
