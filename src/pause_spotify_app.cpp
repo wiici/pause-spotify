@@ -9,8 +9,6 @@
 
 PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
 {
-    spdlog::set_pattern("[%H:%M:%S.%e][%P][%t](%^%l%$): %v");
-
     bool isDebugConfiguration = options.isDebugEnabled();
 #if defined _DEBUG
     isDebugConfiguration = true;
@@ -35,8 +33,6 @@ PauseSpotifyApp::~PauseSpotifyApp()
     CoUninitialize();
 
     spdlog::info("PauseSpotify end");
-
-    spdlog::shutdown();
 }
 
 void PauseSpotifyApp::run()

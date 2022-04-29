@@ -1,6 +1,7 @@
 #pragma once
 
 #include "app_options.hpp"
+#include "logger.hpp"
 
 class PauseSpotifyApp {
 public:
@@ -8,4 +9,7 @@ public:
     ~PauseSpotifyApp();
 
     void run();
+
+private:
+    Logger m_logger;
 };

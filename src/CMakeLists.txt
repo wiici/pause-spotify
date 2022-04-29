@@ -24,7 +24,8 @@ target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE main.cpp
 				                               audio_session_manager.cpp
 				                               default_audio_rendering_endpoint.cpp
 				                               spotify_app.cpp
-				                               misc.cpp)
+				                               misc.cpp
+											   logger.cpp)
 
 target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
 target_compile_definitions(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=1>)
