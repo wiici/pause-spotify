@@ -3,8 +3,11 @@
 
 #include <Psapi.h>
 #include <Windows.h>
+#include <winuser.h>
 #include <curl/curl.h>
 #include <spdlog/spdlog.h>
+#include <fmt/ostream.h>
+#include <array>
 
 void logCurlFailure(const CURLcode err, const char* line)
 {
@@ -18,6 +21,35 @@ void logCurlFailure(const CURLcode err, const char* line)
         logCurlFailure(HR_VAR_NAME, #x);                                       \
         throw std::runtime_error("Runtime error related to winapi.");          \
     }
+
+const std::array<std::pair<SpotifyInteractionType, std::string>, 3> InteractionTypesCorespStr
+{
+    std::make_pair(SpotifyInteractionType::WindowKey, std::string("windowkey")),
+    std::make_pair(SpotifyInteractionType::API, std::string("api")),
+    std::make_pair(SpotifyInteractionType::None, std::string("none"))
+};
+
+SpotifyInteractionType GetSpotifyInteractionTypeByName(const std::string_view str)
+{
+    for (const auto& entry : InteractionTypesCorespStr) {
+        if (entry.second == str) {
+            return entry.first;
+        }
+    }
+
+    return SpotifyInteractionType::None;
+}
+
+std::ostream& operator<<(std::ostream& os, SpotifyInteractionType interactionType)
+{
+    for (const auto& entry : InteractionTypesCorespStr) {
+        if (entry.first == interactionType) {
+            os << entry.second;
+        }
+    }
+
+    return os;
+}
 
 SpotifyApp::SpotifyApp(const std::string_view token) : m_token(token) {}
 
@@ -91,8 +123,63 @@ void SpotifyApp::SetAccessToken(const std::string_view token)
     SpotifyApp::GetInstance().m_token = token;
 }
 
+void SpotifyApp::SetInteractionType(const SpotifyInteractionType interactionType)
+{
+    spdlog::debug("Set Spotify interaction type to \"{}\"", interactionType);
+
+    SpotifyApp::GetInstance().m_interactionType = interactionType;
+}
+
+void SpotifyApp::SetInteractionType(const std::string_view interactionTypeStr)
+{
+    SetInteractionType(GetSpotifyInteractionTypeByName(interactionTypeStr));
+}
+
+bool SpotifyApp::NeedToken()
+{
+    if (GetInstance().m_interactionType == SpotifyInteractionType::API) {
+        return true;
+    }
+
+    return false;
+}
+
 void SpotifyApp::pause()
 {
+    switch (m_interactionType) {
+        case SpotifyInteractionType::API:
+            pauseUsingAPI();
+            break;
+        case SpotifyInteractionType::WindowKey:
+            pauseUsingWindowKey();
+            break;
+        case SpotifyInteractionType::None:
+            spdlog::warn(
+                "Spotify interaction type not set. Cannot pause Spotify");
+            break;
+    }
+}
+
+void SpotifyApp::play()
+{
+    switch (m_interactionType) {
+        case SpotifyInteractionType::API:
+            playUsingAPI();
+            break;
+        case SpotifyInteractionType::WindowKey:
+            playUsingWindowKey();
+            break;
+        case SpotifyInteractionType::None:
+            spdlog::warn(
+                "Spotify interaction type not set. Cannot play Spotify");
+            break;
+    }
+}
+
+void SpotifyApp::pauseUsingAPI()
+{
+    assert(!m_token.empty());
+
     // Pause spotify using curl
 
     CURL* curl = nullptr;
@@ -134,8 +221,10 @@ void SpotifyApp::pause()
     curl_slist_free_all(headers);
 }
 
-void SpotifyApp::play()
+void SpotifyApp::playUsingAPI()
 {
+    assert(!m_token.empty());
+
     CURL* curl = nullptr;
 
     CHECK_CURLERR(curl_global_init(CURL_GLOBAL_DEFAULT));
@@ -172,4 +261,49 @@ void SpotifyApp::play()
     curl_easy_cleanup(curl);
 
     curl_slist_free_all(headers);
+}
+
+void SpotifyApp::pauseUsingWindowKey()
+{
+    if (m_spotifyWindow == nullptr) {
+        setSpotifyWindowHandler();
+    }
+
+    spdlog::debug("Pause Spotify app using window key...");
+
+    SendMessage(static_cast<HWND>(m_spotifyWindow), WM_APPCOMMAND, 0,
+                MAKELPARAM(0, APPCOMMAND_MEDIA_PAUSE));
+}
+
+void SpotifyApp::playUsingWindowKey()
+{
+    if (m_spotifyWindow == nullptr) {
+        setSpotifyWindowHandler();
+    }
+
+    spdlog::debug("Play Spotify app using window key...");
+
+    SendMessage(static_cast<HWND>(m_spotifyWindow), WM_APPCOMMAND, 0,
+                MAKELPARAM(0, APPCOMMAND_MEDIA_PLAY));
+}
+
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+{
+    HWND* hSpotifyWindow = reinterpret_cast<HWND*>(lParam);
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+    if (SpotifyApp::IsSpotifyProcess(pid)) {
+        *hSpotifyWindow = hwnd;
+        return false;
+    }
+
+    return true;
+}
+
+void SpotifyApp::setSpotifyWindowHandler()
+{
+    EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&m_spotifyWindow));
+
+    spdlog::debug("Found Spotify window, handler=<{}>",
+                  fmt::ptr(m_spotifyWindow));
 }

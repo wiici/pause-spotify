@@ -11,7 +11,8 @@ AppOptions::AppOptions(int argc, char* argv[])
 {
     m_desc.add_options()
         ("help", "see help message")
-        ("token", po::value<std::string>()->required(), "set access token for Spotify Web API")
+        ("inter-type", po::value<std::string>()->required(), "set how program will play/pause Spotify (windowkey or api)")
+        ("token", po::value<std::string>(), "set access token for Spotify Web API")
         ("debug", po::value<bool>()->default_value(false), "enable debug logging");
 
     try {
@@ -39,4 +40,9 @@ bool AppOptions::isDebugEnabled() const
 std::string_view AppOptions::getToken() const
 {
     return m_vars["token"].as<const std::string&>();
+}
+
+std::string_view AppOptions::getInteractionTypeStr() const
+{
+    return m_vars["inter-type"].as<const std::string&>();
 }

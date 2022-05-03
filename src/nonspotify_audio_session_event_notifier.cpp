@@ -135,12 +135,12 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
         case AudioSessionStateActive:
             stateName.append("ACTIVE");
             spdlog::debug("-----> PAUSE SPOTIFY");
-            //SpotifyApp::DoOperation(SpotifyOperationType::Pause);
+            SpotifyApp::DoOperation(SpotifyOperationType::Pause);
             break;
         case AudioSessionStateInactive:
             stateName.append("INACTIVE");
             spdlog::debug("-----> PLAY SPOTIFY");
-            //SpotifyApp::DoOperation(SpotifyOperationType::Play);
+            SpotifyApp::DoOperation(SpotifyOperationType::Play);
             break;
         case AudioSessionStateExpired:
             stateName.append("EXPIRED");

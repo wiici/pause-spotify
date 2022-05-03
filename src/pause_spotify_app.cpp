@@ -18,7 +18,11 @@ PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
         spdlog::set_level(spdlog::level::debug);
     }
 
-    SpotifyApp::SetAccessToken(options.getToken());
+    SpotifyApp::SetInteractionType(options.getInteractionTypeStr());
+
+    if (SpotifyApp::NeedToken()) {
+        SpotifyApp::SetAccessToken(options.getToken());
+    }
 
     auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (FAILED(hr)) {

@@ -13,4 +13,5 @@ public:
 
     bool isDebugEnabled() const;
     std::string_view getToken() const;
+    std::string_view getInteractionTypeStr() const;
 };
