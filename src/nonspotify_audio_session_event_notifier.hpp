@@ -5,12 +5,14 @@
 #include <audiopolicy.h>
 #include <memory>
 #include <string>
+#include <atomic>
 
 class NonSpotifyAudioSessionEventNotifier : public IAudioSessionEvents {
 private:
     long m_refCounter = 1;
     const std::string m_relatedProcessName = "<unknown>";
     const DWORD m_relatedPID = 0;
+    static std::atomic_uint ActiveSessionCnt;
 
     NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
                                         const DWORD relatedPID);

@@ -3,6 +3,8 @@
 
 #include <spdlog/spdlog.h>
 
+std::atomic_uint NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt = 0;
+
 NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
     const std::string& relatedProcessName, const DWORD relatedPID)
     : m_relatedProcessName(relatedProcessName), 
@@ -135,12 +137,17 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
         case AudioSessionStateActive:
             stateName.append("ACTIVE");
             spdlog::debug("-----> PAUSE SPOTIFY");
+            ++ActiveSessionCnt;
             SpotifyApp::DoOperation(SpotifyOperationType::Pause);
             break;
         case AudioSessionStateInactive:
             stateName.append("INACTIVE");
             spdlog::debug("-----> PLAY SPOTIFY");
-            SpotifyApp::DoOperation(SpotifyOperationType::Play);
+            Sleep(2500);
+            --ActiveSessionCnt;
+            if (ActiveSessionCnt == 0) {
+                SpotifyApp::DoOperation(SpotifyOperationType::Play);
+            }
             break;
         case AudioSessionStateExpired:
             stateName.append("EXPIRED");
@@ -152,6 +159,8 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
 
     spdlog::debug("New session state for \"{}\" (PID {}): {}",
                   m_relatedProcessName, m_relatedPID, stateName);
+
+    spdlog::debug("Number of active sessions {}", ActiveSessionCnt);
 
     return S_OK;
 }
