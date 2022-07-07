@@ -196,7 +196,7 @@ void SpotifyApp::pauseUsingAPI()
 
     // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     CHECK_CURLERR(curl_easy_setopt(
-        curl, CURLOPT_URL, "https://api.spotify.com/v1/me/player/Pause"));
+        curl, CURLOPT_URL, "https://api.spotify.com/v1/me/player/pause"));
 
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L));
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L));
@@ -239,7 +239,7 @@ void SpotifyApp::playUsingAPI()
 
     // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     CHECK_CURLERR(curl_easy_setopt(
-        curl, CURLOPT_URL, "https://api.spotify.com/v1/me/player/Play"));
+        curl, CURLOPT_URL, "https://api.spotify.com/v1/me/player/play"));
 
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L));
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1L));
