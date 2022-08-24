@@ -2,8 +2,6 @@
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-std::string Logger::DefaultPattern = "[%H:%M:%S.%e][%P][%t](%^%l%$): %v";
-
 Logger::Logger()
     : m_consoleLogger(spdlog::stdout_color_mt("console_logger"))
 {

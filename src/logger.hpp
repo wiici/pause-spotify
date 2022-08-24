@@ -7,8 +7,7 @@
 class Logger {
 private:
     std::shared_ptr<spdlog::logger> m_consoleLogger;
-    static std::string DefaultPattern;
-
+    inline static const std::string DefaultPattern = "[%H:%M:%S.%e][%P][%t](%^%l%$): %v";
 public:
     Logger();
     ~Logger();
