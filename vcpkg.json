@@ -1,6 +1,6 @@
 {
-  "name": "resumespotify",
-  "version-string": "0.0.1",
+  "name": "pausespotify",
+  "version-string": "1.0.0",
   "dependencies": [
     "spdlog",
     "curl",
