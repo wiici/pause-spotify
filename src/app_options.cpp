@@ -20,12 +20,12 @@ AppOptions::AppOptions(int argc, char* argv[])
         po::notify(m_vars);
     }
     catch (const std::exception& e) {
-        if (m_vars.count("help") || m_vars.empty()) {
+        if (m_vars.count("help")) {
             std::cout << m_desc;
             exit(0);
         }
         else {
-            std::cerr << "Command line parser exception: " << e.what() << "\n";
+            std::cerr << "\nCommand line parser exception: " << e.what() << "\n\n";
             std::cerr << m_desc;
             exit(-1);
         }
