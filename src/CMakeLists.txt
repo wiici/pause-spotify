@@ -30,5 +30,5 @@ target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE main.cpp
 target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
 target_compile_definitions(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=1>)
 target_compile_options(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4>)
-set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES CXX_STANDARD 17)
+set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES CXX_STANDARD 20)
 set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
