@@ -13,7 +13,7 @@ AppOptions::AppOptions(int argc, char* argv[])
         ("help", "see help message")
         ("inter-type", po::value<std::string>()->required(), "set how program will play/pause Spotify (windowkey or api)")
         ("token", po::value<std::string>(), "set access token for Spotify Web API")
-        ("debug", po::value<bool>()->default_value(false), "enable debug logging");
+        ("debug", "enable debug logging");
 
     try {
         po::store(po::parse_command_line(argc, argv, m_desc), m_vars);
@@ -34,7 +34,7 @@ AppOptions::AppOptions(int argc, char* argv[])
 
 bool AppOptions::isDebugEnabled() const
 {
-    return m_vars["debug"].as<bool>();
+    return m_vars.count("debug");
 }
 
 std::string_view AppOptions::getToken() const
