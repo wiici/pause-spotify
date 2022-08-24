@@ -4,3 +4,4 @@ build/
 
 # files
 CMakeSettings.json
+*.code-workspace
