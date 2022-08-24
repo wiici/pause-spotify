@@ -16,18 +16,24 @@ AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionCo
         return;
     }
 
-    auto hr = NonSpotifyAudioSessionEventNotifier::CreateInstance(
-        m_relatedProcessName, m_relatedPID,
-        m_pAudioSessionNotifier.GetAddressOf());
+    AudioSessionState currState;
+    auto hr = m_pAudioSessionControl2->GetState(&currState);
+    if (FAILED(hr)) {
+        throw _com_error(hr);
+    }
 
+    hr = NonSpotifyAudioSessionEventNotifier::CreateInstance(
+        currState,
+        m_relatedProcessName,
+        m_relatedPID,
+        m_pAudioSessionNotifier.GetAddressOf());
+    
     if (FAILED(hr)) {
         throw _com_error(hr);
     }
 
     hr = m_pAudioSessionControl2->RegisterAudioSessionNotification(
         m_pAudioSessionNotifier.Get());
-
-    //TODO: Check if m_pAudioSessionControl2 audio session is already active
 
     if (FAILED(hr)) {
         throw _com_error(hr);

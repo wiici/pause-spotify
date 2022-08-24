@@ -1,4 +1,5 @@
 #include "audio_session_manager.hpp"
+#include "nonspotify_audio_session_event_notifier.hpp"
 #include <spdlog/spdlog.h>
 
 #include <psapi.h>
@@ -11,6 +12,8 @@ AudioSessionManager::AudioSessionManager(
     : m_pAudioSessionManager2(&audioSessionManager2),
       m_pshrAudioSessions(std::make_shared<AudioSessionList>(std::move(getAllAudioSessions())))
 {
+    spdlog::info("Found {} active audio session at the beginning", NonSpotifyAudioSessionEventNotifier::GetNumberOfActiveAudioSessions());
+
     auto hr = NewAudioSessionNotifier::CreateInstance(
         m_pshrAudioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
 

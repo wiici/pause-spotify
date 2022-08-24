@@ -21,7 +21,10 @@ public:
     NonSpotifyAudioSessionEventNotifier() = delete;
     ~NonSpotifyAudioSessionEventNotifier();
 
+    inline static auto GetNumberOfActiveAudioSessions() { return ActiveSessionCnt.load(); }
+
     static HRESULT CreateInstance(
+        const AudioSessionState& currState,
         const std::string& relatedProcessName, const DWORD relatedPID,
         NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier);
 

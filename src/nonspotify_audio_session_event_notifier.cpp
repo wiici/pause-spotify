@@ -18,7 +18,9 @@ NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
 NonSpotifyAudioSessionEventNotifier::~NonSpotifyAudioSessionEventNotifier() {}
 
 HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
-    const std::string& relatedProcessName, const DWORD relatedPID,
+    const AudioSessionState& currState,
+    const std::string& relatedProcessName,
+    const DWORD relatedPID,
     NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
@@ -33,6 +35,10 @@ HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
     }
 
     *ppAudioSessionNotifier = pAudioSessionNotifier;
+
+    if (currState == AudioSessionStateActive) {
+        NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt += 1;
+    }
 
     return S_OK;
 
