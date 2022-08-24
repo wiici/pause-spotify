@@ -1,5 +1,3 @@
-#pragma once
-
 #include "audio_session_controller.hpp"
 #include "spotify_app.hpp"
 
