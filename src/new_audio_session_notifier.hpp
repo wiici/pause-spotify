@@ -2,20 +2,21 @@
 
 #include "audio_session_list.hpp"
 #include <audiopolicy.h>
+#include <mutex>
 
 class NewAudioSessionNotifier : public IAudioSessionNotification {
 private:
     long m_refCounter = 1;
-    //TODO: make it shared_ptr
-    AudioSessionList& m_audioSessions;
+    std::shared_ptr<AudioSessionList> m_pshrAudioSessions;
+    static std::mutex mtx;
 
-    NewAudioSessionNotifier(AudioSessionList& audioSessions);
+    NewAudioSessionNotifier(std::shared_ptr<AudioSessionList>& pshrAudioSessions);
 
 public:
     ~NewAudioSessionNotifier();
 
     static HRESULT
-    CreateInstance(AudioSessionList& audioSessions,
+    CreateInstance(std::shared_ptr<AudioSessionList>& pshrAudioSessions,
                    NewAudioSessionNotifier** ppNewAudioSessionNotifier);
 
     HRESULT QueryInterface(REFIID riid, void** ppv) override;

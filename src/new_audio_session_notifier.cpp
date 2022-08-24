@@ -7,8 +7,10 @@
 
 namespace wrl = Microsoft::WRL;
 
-NewAudioSessionNotifier::NewAudioSessionNotifier(AudioSessionList& m_audioSessions)
-    : m_audioSessions(m_audioSessions)
+std::mutex NewAudioSessionNotifier::mtx;
+
+NewAudioSessionNotifier::NewAudioSessionNotifier(std::shared_ptr<AudioSessionList>& pshrAudioSessions)
+    : m_pshrAudioSessions(pshrAudioSessions)
 {
     SPDLOG_DEBUG("Creating instance of NewAudioSessionNotifier {}",
                  fmt::ptr(this));
@@ -17,12 +19,12 @@ NewAudioSessionNotifier::NewAudioSessionNotifier(AudioSessionList& m_audioSessio
 NewAudioSessionNotifier::~NewAudioSessionNotifier() {}
 
 HRESULT NewAudioSessionNotifier::CreateInstance(
-    AudioSessionList& audioSessions,
+    std::shared_ptr<AudioSessionList>& pshrAudioSessions,
     NewAudioSessionNotifier** ppNewAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
 
-    auto pNewAudioSessionNotifier = new NewAudioSessionNotifier(audioSessions);
+    auto pNewAudioSessionNotifier = new NewAudioSessionNotifier(pshrAudioSessions);
 
     if (pNewAudioSessionNotifier == nullptr) {
         hr = E_OUTOFMEMORY;
@@ -105,7 +107,8 @@ HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSess
     spdlog::debug("Received information about new audio session for PID {}",
                   newAudioSession.getRelatedPID());
 
-    m_audioSessions.addAudioSessionIfNotExist(std::move(newAudioSession));
+    std::lock_guard lock(NewAudioSessionNotifier::mtx);
+    m_pshrAudioSessions->addAudioSessionIfNotExist(std::move(newAudioSession));
 
     return S_OK;
 }

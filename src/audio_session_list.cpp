@@ -8,7 +8,12 @@ AudioSessionList::AudioSessionList(std::list<AudioSessionController>&& audioSess
 	:
 	m_audioSessions(std::move(audioSessions))
 {
-	printAllAudioSessionsInfo();
+}
+
+AudioSessionList::AudioSessionList(AudioSessionList&& obj)
+    : 
+	m_audioSessions(std::move(obj.m_audioSessions))
+{
 }
 
 AudioSessionList::~AudioSessionList()

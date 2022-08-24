@@ -9,14 +9,16 @@ namespace wrl = Microsoft::WRL;
 AudioSessionManager::AudioSessionManager(
     IAudioSessionManager2& audioSessionManager2)
     : m_pAudioSessionManager2(&audioSessionManager2),
-      m_audioSessions(getAllAudioSessions())
+      m_pshrAudioSessions(std::make_shared<AudioSessionList>(std::move(getAllAudioSessions())))
 {
     auto hr = NewAudioSessionNotifier::CreateInstance(
-        m_audioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
+        m_pshrAudioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
 
     if (FAILED(hr)) {
         throw _com_error(hr);
     }
+
+    m_pshrAudioSessions->printAllAudioSessionsInfo();
 
     hr = m_pAudioSessionManager2->RegisterSessionNotification(
         m_pNewAudioSessionNotifier.Get());

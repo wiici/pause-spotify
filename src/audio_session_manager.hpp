@@ -10,7 +10,7 @@ class AudioSessionManager {
 private:
     Microsoft::WRL::ComPtr<IAudioSessionManager2> m_pAudioSessionManager2;
     Microsoft::WRL::ComPtr<NewAudioSessionNotifier> m_pNewAudioSessionNotifier;
-	AudioSessionList m_audioSessions;
+	std::shared_ptr<AudioSessionList> m_pshrAudioSessions;
 
 public:
 	AudioSessionManager() = delete;
