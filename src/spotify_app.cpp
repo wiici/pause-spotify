@@ -68,9 +68,16 @@ bool SpotifyApp::IsSpotifyProcess(const unsigned int pid)
     HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid);
 
     if (hProcess == nullptr) {
-        spdlog::error(
-            "Failed to get handle to PID {}. Windows error message: \"{}\"",
-            pid, GetLastErrorMessage());
+        if (GetLastError() == ERROR_ACCESS_DENIED) {
+            spdlog::debug("Failed to get handle to PID {} (probably system "
+                          "process): \"{}\"",
+                          pid, GetLastErrorMessage());
+        }
+        else {
+            spdlog::error(
+                "Failed to get handle to PID {}. Windows error message: \"{}\"",
+                pid, GetLastErrorMessage());
+        }
 
         return false;
     }
