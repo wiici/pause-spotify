@@ -11,7 +11,7 @@ private:
 public:
     AudioSessionList(std::list<AudioSessionController>&& audioSessions);
     AudioSessionList(AudioSessionList&& obj);
-    ~AudioSessionList();
+    ~AudioSessionList() = default;
 
     bool isPidAlreadyInList(const unsigned long pid);
     void addAudioSessionIfNotExist(AudioSessionController&& newAudioSession);

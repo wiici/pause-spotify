@@ -1,5 +1,6 @@
 #include "misc.hpp"
 
+#include <array>
 #include <Psapi.h>
 
 void logHRESULT(HRESULT hresult, const char* fullFilenamePath,
@@ -13,18 +14,13 @@ void logHRESULT(HRESULT hresult, const char* fullFilenamePath,
         error.ErrorMessage());
 }
 
-std::string utf16_to_utf8(const wchar_t* utf16_string)
+std::string utf16_to_utf8(const std::wstring& utf16_string)
 {
-    if (utf16_string == nullptr) {
-        return std::string {};
-    }
-
-    const auto utf8Size = static_cast<int>(wcslen(utf16_string) * 2 + 1);
-
+    const auto utf8Size = static_cast<int>(utf16_string.size() * 2 + 1);
     auto utf8_string = std::make_unique<char[]>(utf8Size);
 
     auto written_bytes =
-        WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, utf16_string, -1,
+        WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, utf16_string.c_str(), -1,
                             utf8_string.get(), utf8Size, nullptr, nullptr);
 
     if (written_bytes == 0) {
@@ -41,7 +37,7 @@ std::string GetProcessExecName(const DWORD pid)
     std::string result = "<unknown>";
 
     DWORD test = pid;
-    auto hProcess =
+    auto* hProcess =
         OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, test);
 
     if (hProcess == nullptr) {
@@ -51,15 +47,17 @@ std::string GetProcessExecName(const DWORD pid)
         return result;
     }
 
-    wchar_t wModuleBaseName[1024];
+    constexpr unsigned int buffSize = 1024;
+    std::array<wchar_t, buffSize> wModuleBaseNameBuffer{L"<unknown_module_name>"};
     auto copiedStrLen =
-        GetModuleBaseNameW(hProcess, nullptr, wModuleBaseName,
-                           sizeof(wModuleBaseName) / sizeof(wchar_t));
-    if (copiedStrLen) {
-        result = utf16_to_utf8(wModuleBaseName);
+        GetModuleBaseNameW(hProcess, nullptr, wModuleBaseNameBuffer.data(),
+                           static_cast<unsigned int>(wModuleBaseNameBuffer.max_size()));
+    if (copiedStrLen != 0) {
+        std::wstring wstrModuleBaseName(wModuleBaseNameBuffer.begin(), wModuleBaseNameBuffer.end());
+        result = utf16_to_utf8(wstrModuleBaseName);
     }
     else {
-        spdlog::warn("Failed to module name related to pid {}. Windows error "
+        spdlog::warn("Failed to get module name related to pid {}. Windows error "
                      "message: \"{}\"",
                      pid, GetLastErrorMessage());
     }
@@ -72,19 +70,20 @@ std::string GetProcessExecName(const DWORD pid)
 std::string GetLastErrorMessage()
 {
     const auto errorCode = GetLastError();
-    const size_t buffSize = 256;
-    char buffer[buffSize] = "<Unknown error>";
+    constexpr size_t buffSize = 256;
+    std::array<char, buffSize> buffer{"<Unknown error>"};
+
     const unsigned long flags =
         FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_MAX_WIDTH_MASK;
     auto writtenChars =
-        FormatMessageA(flags, nullptr, errorCode, 0, buffer, buffSize, nullptr);
+        FormatMessageA(flags, nullptr, errorCode, 0, buffer.data(), buffSize, nullptr);
 
-    if (!writtenChars) {
+    if (writtenChars == 0) {
         spdlog::error("Format message failed with error code {}",
                       GetLastError());
 
         return {};
     }
 
-    return std::string(buffer);
+    return {buffer.data(), writtenChars};
 }

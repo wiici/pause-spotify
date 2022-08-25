@@ -25,7 +25,7 @@ HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
 {
     HRESULT hr = S_OK;
 
-    auto pAudioSessionNotifier =
+    auto* pAudioSessionNotifier =
         new NonSpotifyAudioSessionEventNotifier(relatedProcessName, relatedPID);
 
     if (pAudioSessionNotifier == nullptr) {
@@ -43,9 +43,7 @@ HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
     return S_OK;
 
 err:
-    if (pAudioSessionNotifier) {
-        delete pAudioSessionNotifier;
-    }
+    delete pAudioSessionNotifier;
 
     return hr;
 }
@@ -55,11 +53,11 @@ HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid,
 {
     if (riid == IID_IUnknown) {
         AddRef();
-        *ppv = (IUnknown*)this;
+        *ppv = reinterpret_cast<IUnknown*>(this);
     }
     else if (riid == __uuidof(IAudioSessionEvents)) {
         AddRef();
-        *ppv = (IAudioSessionEvents*)this;
+        *ppv = reinterpret_cast<IAudioSessionEvents*>(this);
     }
     else {
         *ppv = nullptr;
@@ -141,13 +139,13 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
 
     switch (NewState) {
         case AudioSessionStateActive:
-            stateName.append("ACTIVE");
+            stateName = "ACTIVE";
             spdlog::debug("-----> PAUSE SPOTIFY");
             ++ActiveSessionCnt;
             SpotifyApp::DoOperation(SpotifyOperationType::Pause);
             break;
         case AudioSessionStateInactive:
-            stateName.append("INACTIVE");
+            stateName = "INACTIVE";
             spdlog::debug("-----> PLAY SPOTIFY");
             Sleep(2500);
             --ActiveSessionCnt;
@@ -156,10 +154,10 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
             }
             break;
         case AudioSessionStateExpired:
-            stateName.append("EXPIRED");
+            stateName = "EXPIRED";
             break;
         default:
-            stateName.append("unrecognized");
+            stateName = "unrecognized";
             break;
     }
 
@@ -174,26 +172,29 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
 HRESULT NonSpotifyAudioSessionEventNotifier::OnSessionDisconnected(
     AudioSessionDisconnectReason DisconnectReason)
 {
-    std::string reason = "<reason unknown>";
+    std::string reason;
 
     switch (DisconnectReason) {
         case DisconnectReasonDeviceRemoval:
-            reason.append("device removed");
+            reason = "device removed";
             break;
         case DisconnectReasonServerShutdown:
-            reason.append("server shut down");
+            reason = "server shut down";
             break;
         case DisconnectReasonFormatChanged:
-            reason.append("format changed");
+            reason = "format changed";
             break;
         case DisconnectReasonSessionLogoff:
-            reason.append("user logged off");
+            reason = "user logged off";
             break;
         case DisconnectReasonSessionDisconnected:
-            reason.append("session disconnected");
+            reason = "session disconnected";
             break;
         case DisconnectReasonExclusiveModeOverride:
-            reason.append("exclusive-mode override");
+            reason = "exclusive-mode override";
+            break;
+        default:
+            reason = "<reason_unknown>";
             break;
     }
 

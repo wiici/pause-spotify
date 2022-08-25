@@ -16,15 +16,13 @@ NewAudioSessionNotifier::NewAudioSessionNotifier(std::shared_ptr<AudioSessionLis
                  fmt::ptr(this));
 }
 
-NewAudioSessionNotifier::~NewAudioSessionNotifier() {}
-
 HRESULT NewAudioSessionNotifier::CreateInstance(
     std::shared_ptr<AudioSessionList>& pshrAudioSessions,
     NewAudioSessionNotifier** ppNewAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
 
-    auto pNewAudioSessionNotifier = new NewAudioSessionNotifier(pshrAudioSessions);
+    auto* pNewAudioSessionNotifier = new NewAudioSessionNotifier(pshrAudioSessions);
 
     if (pNewAudioSessionNotifier == nullptr) {
         hr = E_OUTOFMEMORY;
@@ -37,9 +35,7 @@ HRESULT NewAudioSessionNotifier::CreateInstance(
     return S_OK;
 
 err:
-    if (pNewAudioSessionNotifier) {
-        delete pNewAudioSessionNotifier;
-    }
+    delete pNewAudioSessionNotifier;
 
     return hr;
 }
@@ -48,11 +44,11 @@ HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
 {
     if (riid == IID_IUnknown) {
         AddRef();
-        *ppv = (IUnknown*)this;
+        *ppv = reinterpret_cast<IUnknown*>(this);
     }
     else if (riid == __uuidof(IAudioSessionNotification)) {
         AddRef();
-        *ppv = (IAudioSessionNotification*)this;
+        *ppv = reinterpret_cast<IAudioSessionNotification*>(this);
     }
     else {
         *ppv = nullptr;

@@ -13,7 +13,7 @@ private:
     NewAudioSessionNotifier(std::shared_ptr<AudioSessionList>& pshrAudioSessions);
 
 public:
-    ~NewAudioSessionNotifier();
+    ~NewAudioSessionNotifier() = default;
 
     static HRESULT
     CreateInstance(std::shared_ptr<AudioSessionList>& pshrAudioSessions,

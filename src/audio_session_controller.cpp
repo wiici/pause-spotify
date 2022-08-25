@@ -4,8 +4,6 @@
 #include <spdlog/spdlog.h>
 #include <Psapi.h>
 
-namespace wrl = Microsoft::WRL;
-
 AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionController)
     : m_pAudioSessionControl2(pSessionController),
       m_relatedPID(retrieveRelatedPID()),
@@ -101,7 +99,7 @@ unsigned long AudioSessionController::getRelatedPID() const
     return m_relatedPID;
 }
 
-const unsigned long AudioSessionController::retrieveRelatedPID()
+unsigned long AudioSessionController::retrieveRelatedPID()
 {
     DWORD pid = 0;
     auto hr = m_pAudioSessionControl2->GetProcessId(&pid);
@@ -161,9 +159,5 @@ bool AudioSessionController::isExpired() const
                      err.ErrorMessage());
     }
 
-    if (state == AudioSessionStateExpired) {
-        return true;
-    }
-
-    return false;
+    return state == AudioSessionStateExpired;
 }

@@ -16,19 +16,10 @@ AudioSessionList::AudioSessionList(AudioSessionList&& obj)
 {
 }
 
-AudioSessionList::~AudioSessionList()
-{
-}
-
 bool AudioSessionList::isPidAlreadyInList(const unsigned long pid)
 {
 	auto pidFinder = [&](const AudioSessionController& obj) {
-		if (obj.getRelatedPID() == pid) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return obj.getRelatedPID() == pid;
 	};
 
 	auto it = std::find_if(m_audioSessions.begin(), m_audioSessions.end(), pidFinder);

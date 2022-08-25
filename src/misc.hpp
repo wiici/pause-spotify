@@ -1,9 +1,9 @@
 #pragma once
 
 #include <spdlog/spdlog.h>
+#include <string>
 #include <cassert>
 #include <comdef.h>
-
 
 #define EXIT_ON_ERROR(hres)                                                    \
     if (FAILED(hres)) {                                                        \
@@ -29,7 +29,7 @@ void logHRESULT(HRESULT hresult, const char* fullFilenamePath,
         throw std::runtime_error("Runtime error related to winapi.");          \
     }
 
-std::string utf16_to_utf8(const wchar_t* utf16_string);
+std::string utf16_to_utf8(const std::wstring& utf16_string);
 
 std::string GetProcessExecName(const DWORD pid);
 

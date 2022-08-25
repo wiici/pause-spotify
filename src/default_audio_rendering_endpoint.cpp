@@ -28,8 +28,6 @@ DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
                  getDeviceFriendlyName());
 }
 
-DefaultAudioRenderingEndpoint::~DefaultAudioRenderingEndpoint() {}
-
 std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const
 {
     wrl::ComPtr<IPropertyStore> pPropertyStore;
@@ -46,7 +44,7 @@ std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const
         return utf16_to_utf8(propertyVal.pwszVal);
     }
 
-    return std::string("<Unknown device name>");
+    return {"<Unknown device name>"};
 }
 
 AudioSessionManager DefaultAudioRenderingEndpoint::getAudioSessionManager()
@@ -60,5 +58,5 @@ AudioSessionManager DefaultAudioRenderingEndpoint::getAudioSessionManager()
         throw _com_error(hr);
     }
 
-    return AudioSessionManager(*pAudioSessionManager2.Detach());
+    return {*pAudioSessionManager2.Detach()};
 }

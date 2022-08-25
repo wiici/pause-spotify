@@ -47,7 +47,7 @@ void PauseSpotifyApp::run()
 
     spdlog::debug("Enter app while loop");
     while (true) {
-        if (GetAsyncKeyState(VK_NUMPAD0)) {
+        if (GetAsyncKeyState(VK_NUMPAD0) != 0) {
             spdlog::debug("Receive exit key");
             break;
         }

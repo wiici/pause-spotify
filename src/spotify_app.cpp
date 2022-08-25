@@ -19,7 +19,7 @@ void logCurlFailure(const CURLcode err, const char* line)
     CURLcode HR_VAR_NAME = x;                                                  \
     if (HR_VAR_NAME != CURLE_OK) {                                             \
         logCurlFailure(HR_VAR_NAME, #x);                                       \
-        throw std::runtime_error("Runtime error related to winapi.");          \
+        throw std::runtime_error("Runtime error related to the libcurl.");     \
     }
 
 const std::array<std::pair<SpotifyInteractionType, std::string>, 3> InteractionTypesCorespStr
@@ -84,15 +84,16 @@ bool SpotifyApp::IsSpotifyProcess(const unsigned int pid)
 
     bool result = false;
 
-    char processName[MAX_PATH] = "<unknown>";
-    auto copiedStrLen =
-        GetProcessImageFileNameA(hProcess, processName, sizeof(processName));
+    std::array<char, MAX_PATH> processNameBuffer{"<unknown>"};
+    auto copiedStrLen = GetProcessImageFileNameA(
+        hProcess, processNameBuffer.data(),
+        static_cast<DWORD>(processNameBuffer.max_size()));
     if (copiedStrLen == 0) {
         spdlog::error("Failed to get process image file name. Error is {}",
                       GetLastError());
     }
     else {
-        std::string strProcessName(processName);
+        std::string strProcessName(processNameBuffer.begin(), processNameBuffer.end());
 
         auto findPos = strProcessName.rfind("Spotify.exe");
 
@@ -216,7 +217,7 @@ void SpotifyApp::pauseUsingAPI()
     headers = curl_slist_append(headers, token_header.c_str());
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers));
 
-    const std::string data_to_send = "";
+    const std::string data_to_send; // empty string ""
     CHECK_CURLERR(
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.c_str()));
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT"));
@@ -259,8 +260,8 @@ void SpotifyApp::playUsingAPI()
     headers = curl_slist_append(headers, token_header.c_str());
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers));
 
-    const char data_to_send[] = "";
-    CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send));
+    const std::string data_to_send; // empty string ""
+    CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data_to_send.c_str()));
     CHECK_CURLERR(curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT"));
 
     CHECK_CURLERR(curl_easy_perform(curl));

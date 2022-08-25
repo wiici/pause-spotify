@@ -12,7 +12,7 @@ private:
 
 public:
     DefaultAudioRenderingEndpoint();
-    ~DefaultAudioRenderingEndpoint();
+    ~DefaultAudioRenderingEndpoint() = default;
 
     std::string getDeviceFriendlyName() const;
     AudioSessionManager getAudioSessionManager();

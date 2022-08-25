@@ -32,7 +32,7 @@ public:
     bool isExpired() const;
 
 private:
-    const unsigned long retrieveRelatedPID();
+    unsigned long retrieveRelatedPID();
     std::string getAudioSessionDisplayName();
     std::string retrieveRelatedProcessName();
 };
