@@ -1,0 +1,1 @@
+### Application to pause/play Spotify when some other application (like Chrome) starts playing audio
