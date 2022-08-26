@@ -136,7 +136,7 @@ std::string AudioSessionController::retrieveRelatedProcessName()
 {
     auto result = getAudioSessionDisplayName();
 
-    if (result.empty() && !isSystemSoundSession()) {
+    if (result.empty() && NOT(isSystemSoundSession())) {
         result = GetProcessExecName(m_relatedPID);
     }
 
