@@ -1,13 +1,12 @@
 #include "spotify_app.hpp"
 #include "misc.hpp"
 
-#include <Psapi.h>
-#include <Windows.h>
-#include <winuser.h>
-#include <curl/curl.h>
 #include <spdlog/spdlog.h>
+#include <curl/curl.h>
 #include <fmt/ostream.h>
 #include <array>
+#include <cassert>
+#include <psapi.h>
 
 void logCurlFailure(const CURLcode err, const char* line)
 {
@@ -15,10 +14,14 @@ void logCurlFailure(const CURLcode err, const char* line)
                   curl_easy_strerror(err));
 }
 
+#define GET_NAME(line) hr_##line##_var
+#define VAR(line) GET_NAME(line)
+#define CURL_ERR_VAR_NAME VAR(__LINE__)
+
 #define CHECK_CURLERR(x)                                                       \
-    CURLcode HR_VAR_NAME = x;                                                  \
-    if (HR_VAR_NAME != CURLE_OK) {                                             \
-        logCurlFailure(HR_VAR_NAME, #x);                                       \
+    CURLcode CURL_ERR_VAR_NAME = x;                                            \
+    if (CURL_ERR_VAR_NAME != CURLE_OK) {                                       \
+        logCurlFailure(CURL_ERR_VAR_NAME, #x);                                 \
         throw std::runtime_error("Runtime error related to the libcurl.");     \
     }
 

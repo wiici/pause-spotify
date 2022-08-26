@@ -2,7 +2,8 @@
 #include "spotify_app.hpp"
 
 #include <spdlog/spdlog.h>
-#include <Psapi.h>
+#include <comdef.h>
+#include <psapi.h>
 
 AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionController)
     : m_pAudioSessionControl2(pSessionController),

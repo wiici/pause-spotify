@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 
 #include <Functiondiscoverykeys_devpkey.h>
+#include <comdef.h>
 #include <audiopolicy.h>
 #include <combaseapi.h>
 

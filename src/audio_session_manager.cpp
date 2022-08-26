@@ -1,7 +1,8 @@
 #include "audio_session_manager.hpp"
 #include "nonspotify_audio_session_event_notifier.hpp"
-#include <spdlog/spdlog.h>
 
+#include <spdlog/spdlog.h>
+#include <comdef.h>
 #include <psapi.h>
 #include <list>
 

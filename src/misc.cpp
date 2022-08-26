@@ -1,18 +1,9 @@
 #include "misc.hpp"
 
+#include <spdlog/spdlog.h>
 #include <array>
-#include <Psapi.h>
-
-void logHRESULT(HRESULT hresult, const char* fullFilenamePath,
-                size_t lineNumber)
-{
-    std::string fileName(fullFilenamePath);
-    _com_error error(hresult);
-    spdlog::error(
-        "ERROR! COM failed at {} (line {}). COM error message: \"{}\"",
-        fileName.substr(fileName.find_last_of('\\') + 1), lineNumber,
-        error.ErrorMessage());
-}
+#include <windows.h>
+#include <psapi.h>
 
 std::string utf16_to_utf8(const std::wstring& utf16_string)
 {
@@ -24,15 +15,14 @@ std::string utf16_to_utf8(const std::wstring& utf16_string)
                             utf8_string.get(), utf8Size, nullptr, nullptr);
 
     if (written_bytes == 0) {
-        spdlog::error(
-            "ERROR! Failed converting UTF-16 to UTF-8. Error code is {}",
-            GetLastError());
+        spdlog::error("Failed converting UTF-16 to UTF-8: \"{}\"",
+                      GetLastErrorMessage());
     }
 
     return std::move(std::string(utf8_string.get()));
 }
 
-std::string GetProcessExecName(const DWORD pid)
+std::string GetProcessExecName(const unsigned int pid)
 {
     std::string result = "<unknown>";
 
@@ -41,8 +31,8 @@ std::string GetProcessExecName(const DWORD pid)
         OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, test);
 
     if (hProcess == nullptr) {
-        spdlog::error("ERROR! Cannot open process for PID {}. Error is {}", pid,
-                      GetLastError());
+        spdlog::error("Cannot open process for PID {}: \"{}\"", pid,
+                      GetLastErrorMessage());
 
         return result;
     }

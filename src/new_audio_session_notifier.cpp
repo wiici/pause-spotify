@@ -2,6 +2,7 @@
 #include "misc.hpp"
 
 #include <spdlog/spdlog.h>
+#include <comdef.h>
 #include <psapi.h>
 #include <wrl/client.h>
 

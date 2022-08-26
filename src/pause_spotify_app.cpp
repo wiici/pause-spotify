@@ -4,6 +4,7 @@
 #include "misc.hpp"
 #include "spotify_app.hpp"
 
+#include <comdef.h>
 #include <combaseapi.h>
 #include <iostream>
 
