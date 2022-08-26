@@ -7,7 +7,6 @@
 enum class SpotifyOperationType { Play, Pause };
 
 enum class SpotifyInteractionType { WindowKey, API, None };
-std::ostream& operator<<(std::ostream& os, SpotifyInteractionType interactionMode);
 SpotifyInteractionType GetSpotifyInteractionTypeByName(const std::string_view str);
 
 class SpotifyApp {

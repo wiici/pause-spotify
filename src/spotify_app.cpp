@@ -2,8 +2,8 @@
 #include "misc.hpp"
 
 #include <spdlog/spdlog.h>
+#include <fmt/format.h>
 #include <curl/curl.h>
-#include <fmt/ostream.h>
 #include <array>
 #include <cassert>
 #include <psapi.h>
@@ -30,6 +30,26 @@ const std::array<std::pair<SpotifyInteractionType, std::string>, 3> InteractionT
     std::make_pair(SpotifyInteractionType::WindowKey, std::string("windowkey")),
     std::make_pair(SpotifyInteractionType::API, std::string("api")),
     std::make_pair(SpotifyInteractionType::None, std::string("none"))
+};
+
+template <>
+struct fmt::formatter<SpotifyInteractionType> {
+    constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin())
+    {
+        return ctx.end();
+    }
+
+    template <typename FormatContext>
+    auto format(const SpotifyInteractionType& input, FormatContext& ctx) -> decltype(ctx.out())
+    {
+        for (const auto& entry : InteractionTypesCorespStr) {
+            if (entry.first == input) {
+                return fmt::format_to(ctx.out(), "{}", entry.second);
+            }
+        }
+
+        return fmt::format_to(ctx.out(), "<unknown>");
+    }
 };
 
 SpotifyInteractionType GetSpotifyInteractionTypeByName(const std::string_view str)
