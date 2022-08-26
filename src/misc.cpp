@@ -22,13 +22,12 @@ std::string utf16_to_utf8(const std::wstring& utf16_string)
     return std::move(std::string(utf8_string.get()));
 }
 
-std::string GetProcessExecName(const unsigned int pid)
+std::string GetProcessExecName(const unsigned long pid)
 {
     std::string result = "<unknown>";
 
-    DWORD test = pid;
-    auto* hProcess =
-        OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, test);
+    auto* hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                                 FALSE, static_cast<DWORD>(pid));
 
     if (hProcess == nullptr) {
         spdlog::error("Cannot open process for PID {}: \"{}\"", pid,
