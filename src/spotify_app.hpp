@@ -1,8 +1,8 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 #include <string_view>
-#include <ostream>
 
 enum class SpotifyOperationType { Play, Pause };
 

@@ -1,4 +1,5 @@
 #include "nonspotify_audio_session_event_notifier.hpp"
+
 #include "spotify_app.hpp"
 
 #include <spdlog/spdlog.h>
@@ -7,7 +8,7 @@ std::atomic_uint NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt = 0;
 
 NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
     const std::string& relatedProcessName, const DWORD relatedPID)
-    : m_relatedProcessName(relatedProcessName), 
+    : m_relatedProcessName(relatedProcessName),
       m_relatedPID(relatedPID)
 {
     SPDLOG_DEBUG("Creating instance of NonSpotifyAudioSessionEventNotifier for "
@@ -18,17 +19,16 @@ NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
 NonSpotifyAudioSessionEventNotifier::~NonSpotifyAudioSessionEventNotifier() {}
 
 HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
-    const AudioSessionState& currState,
-    const std::string& relatedProcessName,
-    const DWORD relatedPID,
-    NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
+    const AudioSessionState& currState, const std::string& relatedProcessName,
+    const DWORD relatedPID, NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
 
     auto* pAudioSessionNotifier =
         new NonSpotifyAudioSessionEventNotifier(relatedProcessName, relatedPID);
 
-    if (pAudioSessionNotifier == nullptr) {
+    if (pAudioSessionNotifier == nullptr)
+    {
         hr = E_OUTOFMEMORY;
 
         goto err;
@@ -36,9 +36,8 @@ HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
 
     *ppAudioSessionNotifier = pAudioSessionNotifier;
 
-    if (currState == AudioSessionStateActive) {
+    if (currState == AudioSessionStateActive)
         NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt += 1;
-    }
 
     return S_OK;
 
@@ -48,18 +47,20 @@ err:
     return hr;
 }
 
-HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid,
-                                                            void** ppv)
+HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid, void** ppv)
 {
-    if (riid == IID_IUnknown) {
+    if (riid == IID_IUnknown)
+    {
         AddRef();
         *ppv = reinterpret_cast<IUnknown*>(this);
     }
-    else if (riid == __uuidof(IAudioSessionEvents)) {
+    else if (riid == __uuidof(IAudioSessionEvents))
+    {
         AddRef();
         *ppv = reinterpret_cast<IAudioSessionEvents*>(this);
     }
-    else {
+    else
+    {
         *ppv = nullptr;
         return E_NOINTERFACE;
     }
@@ -83,10 +84,10 @@ unsigned long NonSpotifyAudioSessionEventNotifier::Release()
                  m_refCounter, m_refCounter - 1, fmt::ptr(this));
 
     auto decrementedVal = InterlockedDecrement(&m_refCounter);
-    if (decrementedVal == 0) {
-        SPDLOG_DEBUG(
-            "Going to release NonSpotifyAudioSessionEventNotifier object {}",
-            fmt::ptr(this));
+    if (decrementedVal == 0)
+    {
+        SPDLOG_DEBUG("Going to release NonSpotifyAudioSessionEventNotifier object {}",
+                     fmt::ptr(this));
 
         delete this;
     }
@@ -98,8 +99,8 @@ unsigned long NonSpotifyAudioSessionEventNotifier::Release()
 #pragma warning(push)
 #pragma warning(disable : 4100)
 
-HRESULT NonSpotifyAudioSessionEventNotifier::OnDisplayNameChanged(
-    LPCWSTR NewDisplayName, LPCGUID EventContext)
+HRESULT NonSpotifyAudioSessionEventNotifier::OnDisplayNameChanged(LPCWSTR NewDisplayName,
+                                                                  LPCGUID EventContext)
 {
     return S_OK;
 }
@@ -111,8 +112,9 @@ NonSpotifyAudioSessionEventNotifier::OnIconPathChanged(LPCWSTR NewIconPath,
     return S_OK;
 }
 
-HRESULT NonSpotifyAudioSessionEventNotifier::OnSimpleVolumeChanged(
-    float NewVolume, BOOL NewMute, LPCGUID EventContext)
+HRESULT NonSpotifyAudioSessionEventNotifier::OnSimpleVolumeChanged(float NewVolume,
+                                                                   BOOL NewMute,
+                                                                   LPCGUID EventContext)
 {
     return S_OK;
 }
@@ -124,8 +126,9 @@ HRESULT NonSpotifyAudioSessionEventNotifier::OnChannelVolumeChanged(
     return S_OK;
 }
 
-HRESULT NonSpotifyAudioSessionEventNotifier::OnGroupingParamChanged(
-    LPCGUID NewGroupingParam, LPCGUID EventContext)
+HRESULT
+NonSpotifyAudioSessionEventNotifier::OnGroupingParamChanged(LPCGUID NewGroupingParam,
+                                                            LPCGUID EventContext)
 {
     return S_OK;
 }
@@ -137,32 +140,32 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
 {
     std::string stateName;
 
-    switch (NewState) {
-        case AudioSessionStateActive:
-            stateName = "ACTIVE";
-            spdlog::debug("-----> PAUSE SPOTIFY");
-            ++ActiveSessionCnt;
-            SpotifyApp::DoOperation(SpotifyOperationType::Pause);
-            break;
-        case AudioSessionStateInactive:
-            stateName = "INACTIVE";
-            spdlog::debug("-----> PLAY SPOTIFY");
-            Sleep(2500);
-            --ActiveSessionCnt;
-            if (ActiveSessionCnt == 0) {
-                SpotifyApp::DoOperation(SpotifyOperationType::Play);
-            }
-            break;
-        case AudioSessionStateExpired:
-            stateName = "EXPIRED";
-            break;
-        default:
-            stateName = "unrecognized";
-            break;
+    switch (NewState)
+    {
+    case AudioSessionStateActive:
+        stateName = "ACTIVE";
+        spdlog::debug("-----> PAUSE SPOTIFY");
+        ++ActiveSessionCnt;
+        SpotifyApp::DoOperation(SpotifyOperationType::Pause);
+        break;
+    case AudioSessionStateInactive:
+        stateName = "INACTIVE";
+        spdlog::debug("-----> PLAY SPOTIFY");
+        Sleep(2500);
+        --ActiveSessionCnt;
+        if (ActiveSessionCnt == 0)
+            SpotifyApp::DoOperation(SpotifyOperationType::Play);
+        break;
+    case AudioSessionStateExpired:
+        stateName = "EXPIRED";
+        break;
+    default:
+        stateName = "unrecognized";
+        break;
     }
 
-    spdlog::debug("New session state for \"{}\" (PID {}): {}",
-                  m_relatedProcessName, m_relatedPID, stateName);
+    spdlog::debug("New session state for \"{}\" (PID {}): {}", m_relatedProcessName,
+                  m_relatedPID, stateName);
 
     spdlog::debug("Number of active sessions {}", ActiveSessionCnt);
 
@@ -174,28 +177,29 @@ HRESULT NonSpotifyAudioSessionEventNotifier::OnSessionDisconnected(
 {
     std::string reason;
 
-    switch (DisconnectReason) {
-        case DisconnectReasonDeviceRemoval:
-            reason = "device removed";
-            break;
-        case DisconnectReasonServerShutdown:
-            reason = "server shut down";
-            break;
-        case DisconnectReasonFormatChanged:
-            reason = "format changed";
-            break;
-        case DisconnectReasonSessionLogoff:
-            reason = "user logged off";
-            break;
-        case DisconnectReasonSessionDisconnected:
-            reason = "session disconnected";
-            break;
-        case DisconnectReasonExclusiveModeOverride:
-            reason = "exclusive-mode override";
-            break;
-        default:
-            reason = "<reason_unknown>";
-            break;
+    switch (DisconnectReason)
+    {
+    case DisconnectReasonDeviceRemoval:
+        reason = "device removed";
+        break;
+    case DisconnectReasonServerShutdown:
+        reason = "server shut down";
+        break;
+    case DisconnectReasonFormatChanged:
+        reason = "format changed";
+        break;
+    case DisconnectReasonSessionLogoff:
+        reason = "user logged off";
+        break;
+    case DisconnectReasonSessionDisconnected:
+        reason = "session disconnected";
+        break;
+    case DisconnectReasonExclusiveModeOverride:
+        reason = "exclusive-mode override";
+        break;
+    default:
+        reason = "<reason_unknown>";
+        break;
     }
 
     spdlog::debug("Audio session disconnected (reason: \"{}\")", reason);

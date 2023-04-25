@@ -1,6 +1,7 @@
 #pragma once
 
 #include "audio_session_list.hpp"
+
 #include <audiopolicy.h>
 #include <mutex>
 
@@ -15,9 +16,8 @@ private:
 public:
     ~NewAudioSessionNotifier() = default;
 
-    static HRESULT
-    CreateInstance(std::shared_ptr<AudioSessionList>& pshrAudioSessions,
-                   NewAudioSessionNotifier** ppNewAudioSessionNotifier);
+    static HRESULT CreateInstance(std::shared_ptr<AudioSessionList>& pshrAudioSessions,
+                                  NewAudioSessionNotifier** ppNewAudioSessionNotifier);
 
     HRESULT QueryInterface(REFIID riid, void** ppv) override;
     unsigned long AddRef() override;

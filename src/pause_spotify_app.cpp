@@ -1,11 +1,12 @@
 #include "pause_spotify_app.hpp"
+
 #include "audio_session_manager.hpp"
 #include "default_audio_rendering_endpoint.hpp"
 #include "misc.hpp"
 #include "spotify_app.hpp"
 
-#include <comdef.h>
 #include <combaseapi.h>
+#include <comdef.h>
 #include <iostream>
 
 PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
@@ -15,20 +16,17 @@ PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
     isDebugConfiguration = true;
 #endif
 
-    if (isDebugConfiguration) {
+    if (isDebugConfiguration)
         spdlog::set_level(spdlog::level::debug);
-    }
 
     SpotifyApp::SetInteractionType(options.getInteractionTypeStr());
 
-    if (SpotifyApp::NeedToken()) {
+    if (SpotifyApp::NeedToken())
         SpotifyApp::SetAccessToken(options.getToken());
-    }
 
     auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-    if (FAILED(hr)) {
+    if (FAILED(hr))
         throw _com_error(hr);
-    }
 
     spdlog::info("PauseSpotify start");
 }
@@ -47,8 +45,10 @@ void PauseSpotifyApp::run()
         defaultAudioDevice.getAudioSessionManager();
 
     spdlog::debug("Enter app while loop");
-    while (true) {
-        if (GetAsyncKeyState(VK_NUMPAD0) != 0) {
+    while (true)
+    {
+        if (GetAsyncKeyState(VK_NUMPAD0) != 0)
+        {
             spdlog::debug("Receive exit key");
             break;
         }

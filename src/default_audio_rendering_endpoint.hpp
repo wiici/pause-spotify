@@ -3,8 +3,8 @@
 #include "audio_session_manager.hpp"
 #include "misc.hpp"
 
-#include <wrl/client.h>
 #include <mmdeviceapi.h>
+#include <wrl/client.h>
 
 class DefaultAudioRenderingEndpoint {
 private:

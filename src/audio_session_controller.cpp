@@ -1,42 +1,36 @@
 #include "audio_session_controller.hpp"
+
 #include "spotify_app.hpp"
 
-#include <spdlog/spdlog.h>
 #include <comdef.h>
 #include <psapi.h>
+#include <spdlog/spdlog.h>
 
 AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionController)
     : m_pAudioSessionControl2(pSessionController),
       m_relatedPID(retrieveRelatedPID()),
       m_relatedProcessName(retrieveRelatedProcessName())
 {
-
-    if (SpotifyApp::IsSpotifyProcess(m_relatedPID)) {
+    if (SpotifyApp::IsSpotifyProcess(m_relatedPID))
         return;
-    }
 
     AudioSessionState currState;
     auto hr = m_pAudioSessionControl2->GetState(&currState);
-    if (FAILED(hr)) {
+    if (FAILED(hr))
         throw _com_error(hr);
-    }
 
     hr = NonSpotifyAudioSessionEventNotifier::CreateInstance(
-        currState,
-        m_relatedProcessName,
-        m_relatedPID,
+        currState, m_relatedProcessName, m_relatedPID,
         m_pAudioSessionNotifier.GetAddressOf());
-    
-    if (FAILED(hr)) {
+
+    if (FAILED(hr))
         throw _com_error(hr);
-    }
 
     hr = m_pAudioSessionControl2->RegisterAudioSessionNotification(
         m_pAudioSessionNotifier.Get());
 
-    if (FAILED(hr)) {
+    if (FAILED(hr))
         throw _com_error(hr);
-    }
 
     spdlog::debug("+++ Register audio session event notification for PID {}",
                   m_relatedPID);
@@ -47,8 +41,7 @@ AudioSessionController::AudioSessionController(AudioSessionController&& obj)
       m_relatedProcessName(std::move(obj.m_relatedProcessName)),
       m_relatedPID(obj.m_relatedPID),
       m_pAudioSessionNotifier(std::move(obj.m_pAudioSessionNotifier))
-{
-}
+{}
 
 AudioSessionController& AudioSessionController::operator=(AudioSessionController&& obj)
 {
@@ -62,17 +55,19 @@ AudioSessionController& AudioSessionController::operator=(AudioSessionController
 
 AudioSessionController::~AudioSessionController()
 {
-    if (m_pAudioSessionControl2 && m_pAudioSessionNotifier) {
-        auto hr =
-            m_pAudioSessionControl2->UnregisterAudioSessionNotification(
-                m_pAudioSessionNotifier.Get());
-        if (FAILED(hr)) {
+    if (m_pAudioSessionControl2 && m_pAudioSessionNotifier)
+    {
+        auto hr = m_pAudioSessionControl2->UnregisterAudioSessionNotification(
+            m_pAudioSessionNotifier.Get());
+        if (FAILED(hr))
+        {
             _com_error error(hr);
             spdlog::warn("Failed to unregister audio session event "
                          "notification for PID {}. Error is: {}",
                          m_relatedPID, error.ErrorMessage());
         }
-        else {
+        else
+        {
             spdlog::debug("--- Unregister audio session event notification "
                           "for PID {}",
                           m_relatedPID);
@@ -104,7 +99,8 @@ unsigned long AudioSessionController::retrieveRelatedPID()
 {
     DWORD pid = 0;
     auto hr = m_pAudioSessionControl2->GetProcessId(&pid);
-    if (FAILED(hr)) {
+    if (FAILED(hr))
+    {
         _com_error err(hr);
         spdlog::warn("Failed to retrieve pid related to the audio session "
                      "controller. Reason is \"{}\"",
@@ -118,7 +114,8 @@ std::string AudioSessionController::getAudioSessionDisplayName()
 {
     wchar_t* wstrDisplayName = nullptr;
     auto hr = m_pAudioSessionControl2->GetDisplayName(&wstrDisplayName);
-    if (FAILED(hr)) {
+    if (FAILED(hr))
+    {
         _com_error err(hr);
         spdlog::warn("Failed to retrieve audio session display name related to "
                      "the audio session "
@@ -136,13 +133,11 @@ std::string AudioSessionController::retrieveRelatedProcessName()
 {
     auto result = getAudioSessionDisplayName();
 
-    if (result.empty() && NOT(isSystemSoundSession())) {
+    if (result.empty() && NOT(isSystemSoundSession()))
         result = GetProcessExecName(m_relatedPID);
-    }
 
-    if (result.empty()) {
+    if (result.empty())
         result = "<unknown>";
-    }
 
     return result;
 }
@@ -152,7 +147,8 @@ bool AudioSessionController::isExpired() const
     AudioSessionState state;
 
     auto hr = m_pAudioSessionControl2->GetState(&state);
-    if (FAILED(hr)) {
+    if (FAILED(hr))
+    {
         _com_error err(hr);
         spdlog::warn("Failed to get audio session state related to "
                      "the audio session "

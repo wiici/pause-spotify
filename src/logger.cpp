@@ -20,4 +20,3 @@ Logger::~Logger()
 {
     spdlog::shutdown();
 }
-

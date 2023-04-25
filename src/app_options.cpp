@@ -9,22 +9,25 @@ namespace po = boost::program_options;
 AppOptions::AppOptions(int argc, char* argv[])
     : m_desc("Options")
 {
-    m_desc.add_options()
-        ("help", "see help message")
-        ("inter-type", po::value<std::string>()->required(), "set how program will play/pause Spotify (windowkey or api)")
-        ("token", po::value<std::string>(), "set access token for Spotify Web API")
-        ("debug", "enable debug logging");
+    m_desc.add_options()("help", "see help message")(
+        "inter-type", po::value<std::string>()->required(),
+        "set how program will play/pause Spotify (windowkey or api)")(
+        "token", po::value<std::string>(),
+        "set access token for Spotify Web API")("debug", "enable debug logging");
 
-    try {
+    try
+    {
         po::store(po::parse_command_line(argc, argv, m_desc), m_vars);
         po::notify(m_vars);
 
-        if (m_vars.count("help")) {
+        if (m_vars.count("help"))
+        {
             std::cout << m_desc;
             exit(0);
         }
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e)
+    {
         std::cerr << "\nCommand line parser exception: " << e.what() << "\n\n";
         std::cerr << m_desc;
         exit(-1);
