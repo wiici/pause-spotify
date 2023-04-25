@@ -18,17 +18,16 @@ AppOptions::AppOptions(int argc, char* argv[])
     try {
         po::store(po::parse_command_line(argc, argv, m_desc), m_vars);
         po::notify(m_vars);
-    }
-    catch (const std::exception& e) {
+
         if (m_vars.count("help")) {
             std::cout << m_desc;
             exit(0);
         }
-        else {
-            std::cerr << "\nCommand line parser exception: " << e.what() << "\n\n";
-            std::cerr << m_desc;
-            exit(-1);
-        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "\nCommand line parser exception: " << e.what() << "\n\n";
+        std::cerr << m_desc;
+        exit(-1);
     }
 }
 
