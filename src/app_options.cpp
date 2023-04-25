@@ -10,7 +10,7 @@ AppOptions::AppOptions(int argc, char* argv[])
     : m_desc("Options")
 {
     m_desc.add_options()("help", "see help message")(
-        "inter-type", po::value<std::string>()->required(),
+        "inter-type", po::value<std::string>()->default_value("windowkey"),
         "set how program will play/pause Spotify (windowkey or api)")(
         "token", po::value<std::string>(),
         "set access token for Spotify Web API")("debug", "enable debug logging");
