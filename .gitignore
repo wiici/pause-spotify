@@ -5,3 +5,6 @@ build/
 # files
 CMakeSettings.json
 *.code-workspace
+launch.json
+settings.json
+tasks.json
