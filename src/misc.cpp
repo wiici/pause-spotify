@@ -21,12 +21,11 @@ std::string utf16_to_utf8(const std::wstring& utf16_string)
     return std::move(std::string(utf8_string.get()));
 }
 
-std::string GetProcessExecName(const unsigned long pid)
+std::string GetProcessExecName(const pid_t pid)
 {
     std::string result = "<unknown>";
 
-    auto* hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE,
-                                 static_cast<DWORD>(pid));
+    auto* hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
 
     if (hProcess == nullptr)
     {

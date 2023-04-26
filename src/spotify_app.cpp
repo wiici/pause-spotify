@@ -210,7 +210,7 @@ void SpotifyApp::play()
 
 void SpotifyApp::pauseUsingAPI()
 {
-    assert(NOT(m_token.empty()));
+    assert(not m_token.empty());
 
     // Pause spotify using curl
 
@@ -255,7 +255,7 @@ void SpotifyApp::pauseUsingAPI()
 
 void SpotifyApp::playUsingAPI()
 {
-    assert(NOT(m_token.empty()));
+    assert(not m_token.empty());
 
     CURL* curl = nullptr;
 

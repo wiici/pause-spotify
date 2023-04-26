@@ -104,13 +104,9 @@ HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSess
         return E_FAIL;
     }
 
-    AudioSessionController newAudioSession(pNewSessionControl2.Detach());
-
-    spdlog::debug("Received information about new audio session for PID {}",
-                  newAudioSession.getRelatedPID());
-
     std::lock_guard lock(NewAudioSessionNotifier::mtx);
-    m_pshrAudioSessions->addAudioSessionIfNotExist(std::move(newAudioSession));
+    AddAudioSessionIfNotExist(*m_pshrAudioSessions,
+                              AudioSessionController(pNewSessionControl2.Detach()));
 
     return S_OK;
 }

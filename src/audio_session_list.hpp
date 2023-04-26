@@ -4,19 +4,10 @@
 
 #include <list>
 
-class AudioSessionList {
-private:
-    std::list<AudioSessionController> m_audioSessions;
+using AudioSessionList = std::list<AudioSessionController>;
 
-public:
-    AudioSessionList(std::list<AudioSessionController>&& audioSessions);
-    AudioSessionList(AudioSessionList&& obj);
-    ~AudioSessionList() = default;
-
-    bool isPidAlreadyInList(const unsigned long pid);
-    void addAudioSessionIfNotExist(AudioSessionController&& newAudioSession);
-    void printAllAudioSessionsInfo();
-
-private:
-    void removeExpiredSessions();
-};
+bool IsPidAlreadyInList(const AudioSessionList& audioSessions, const pid_t pid);
+void AddAudioSessionIfNotExist(AudioSessionList& audioSessions,
+                               AudioSessionController&& newAudioSession);
+void RemoveExpiredSessions(AudioSessionList& audioSessions);
+void PrintAllAudioSessionsInfo(const AudioSessionList& audioSessions);

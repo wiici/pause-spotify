@@ -23,7 +23,7 @@ AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionMana
     if (FAILED(hr))
         throw _com_error(hr);
 
-    m_pshrAudioSessions->printAllAudioSessionsInfo();
+    PrintAllAudioSessionsInfo(*m_pshrAudioSessions);
 
     hr = m_pAudioSessionManager2->RegisterSessionNotification(
         m_pNewAudioSessionNotifier.Get());
@@ -65,7 +65,7 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
     if (FAILED(hr))
         throw _com_error(hr);
 
-    std::list<AudioSessionController> allAudioSessions;
+    AudioSessionList allAudioSessions;
 
     for (int i = 0; i < sessionCount; ++i)
     {
@@ -97,5 +97,5 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
         }
     }
 
-    return AudioSessionList(std::move(allAudioSessions));
+    return allAudioSessions;
 }

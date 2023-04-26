@@ -89,14 +89,14 @@ std::string_view AudioSessionController::getRelatedProcessName() const
     return m_relatedProcessName;
 }
 
-unsigned long AudioSessionController::getRelatedPID() const
+pid_t AudioSessionController::getRelatedPID() const
 {
     return m_relatedPID;
 }
 
-unsigned long AudioSessionController::retrieveRelatedPID()
+pid_t AudioSessionController::retrieveRelatedPID()
 {
-    DWORD pid = 0;
+    pid_t pid = 0;
     auto hr = m_pAudioSessionControl2->GetProcessId(&pid);
     if (FAILED(hr))
     {
@@ -130,7 +130,7 @@ std::string AudioSessionController::retrieveRelatedProcessName()
 {
     auto result = getAudioSessionDisplayName();
 
-    if (result.empty() && NOT(isSystemSoundSession()))
+    if (result.empty() && not isSystemSoundSession())
         result = GetProcessExecName(m_relatedPID);
 
     if (result.empty())
