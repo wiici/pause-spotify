@@ -32,8 +32,8 @@ std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const
         m_uptrDefaultDevice->OpenPropertyStore(STGM_READ, pPropertyStore.GetAddressOf());
     if (FAILED(hr))
     {
-        _com_error err(hr);
-        spdlog::warn("Cannot open device property store: \"{}\"", err.ErrorMessage());
+        spdlog::warn("Cannot open device property store: \"{}\"",
+                     _com_error(hr).ErrorMessage());
     }
     else
     {

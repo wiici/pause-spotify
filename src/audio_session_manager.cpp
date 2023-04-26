@@ -42,10 +42,9 @@ AudioSessionManager::~AudioSessionManager()
             m_pNewAudioSessionNotifier.Get());
         if (FAILED(hr))
         {
-            _com_error error(hr);
             spdlog::warn("Failed to unregister event notification about new "
                          "audio session. Reason is: {}",
-                         error.ErrorMessage());
+                         _com_error(hr).ErrorMessage());
         }
         else
         {
@@ -75,10 +74,9 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
         hr = pSessionList->GetSession(i, pAudioSessionControl.GetAddressOf());
         if (FAILED(hr))
         {
-            _com_error err(hr);
             spdlog::warn("Failed to get {} audio session controller from the "
                          "list. Reason is \"{}\"",
-                         i + 1, err.ErrorMessage());
+                         i + 1, _com_error(hr).ErrorMessage());
         }
         else
         {

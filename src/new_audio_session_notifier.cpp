@@ -97,10 +97,9 @@ HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSess
 
     if (FAILED(hr))
     {
-        _com_error err(hr);
         spdlog::warn("Failed to query interface to acquire "
                      "IAudioSessionControl2. Reason is \"{}\"",
-                     err.ErrorMessage());
+                     _com_error(hr).ErrorMessage());
 
         return E_FAIL;
     }

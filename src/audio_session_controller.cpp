@@ -61,10 +61,9 @@ AudioSessionController::~AudioSessionController()
             m_pAudioSessionNotifier.Get());
         if (FAILED(hr))
         {
-            _com_error error(hr);
             spdlog::warn("Failed to unregister audio session event "
                          "notification for PID {}. Error is: {}",
-                         m_relatedPID, error.ErrorMessage());
+                         m_relatedPID, _com_error(hr).ErrorMessage());
         }
         else
         {
@@ -101,10 +100,9 @@ unsigned long AudioSessionController::retrieveRelatedPID()
     auto hr = m_pAudioSessionControl2->GetProcessId(&pid);
     if (FAILED(hr))
     {
-        _com_error err(hr);
         spdlog::warn("Failed to retrieve pid related to the audio session "
                      "controller. Reason is \"{}\"",
-                     err.ErrorMessage());
+                     _com_error(hr).ErrorMessage());
     }
 
     return pid;
@@ -116,11 +114,10 @@ std::string AudioSessionController::getAudioSessionDisplayName()
     auto hr = m_pAudioSessionControl2->GetDisplayName(&wstrDisplayName);
     if (FAILED(hr))
     {
-        _com_error err(hr);
         spdlog::warn("Failed to retrieve audio session display name related to "
                      "the audio session "
                      "controller. Reason is \"{}\"",
-                     err.ErrorMessage());
+                     _com_error(hr).ErrorMessage());
     }
     auto result = utf16_to_utf8(wstrDisplayName);
 
@@ -149,11 +146,10 @@ bool AudioSessionController::isExpired() const
     auto hr = m_pAudioSessionControl2->GetState(&state);
     if (FAILED(hr))
     {
-        _com_error err(hr);
         spdlog::warn("Failed to get audio session state related to "
                      "the audio session "
                      "controller. Reason is \"{}\"",
-                     err.ErrorMessage());
+                     _com_error(hr).ErrorMessage());
     }
 
     return state == AudioSessionStateExpired;
