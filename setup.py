@@ -9,6 +9,9 @@ parser.add_argument("--debug", dest="isDebug", action="store_true", default=Fals
 parser.add_argument(
     "--compiler", dest="compilerIdStr", choices=["clang", "msvc"], default="clang"
 )
+parser.add_argument(
+    "--with-static-libs", dest="withStaticLibs", action="store_true", default=False
+)
 args = parser.parse_args()
 
 loggingLevel = logging.INFO
@@ -42,6 +45,12 @@ cmake_exe = "cmake.exe"
 projectRootDir = pathlib.Path(__file__).parent.resolve()
 targetBuildDir = f"{projectRootDir}/build"
 cmakeLogLevel = "WARNING"
+vcpkgTargetTriplet = "x64-windows"
+if args.withStaticLibs:
+    vcpkgTargetTriplet += "-static"
+buildStaticLibsFlag = "FALSE"
+if args.withStaticLibs:
+    buildStaticLibsFlag = "TRUE"
 if args.isDebug:
     cmakeLogLevel = "TRACE"
 
@@ -56,6 +65,8 @@ cmakeCmd = [
     "-D", f"CMAKE_CXX_COMPILER={cpp_compiler}",
     "-D", f"CMAKE_C_COMPILER={c_compiler}",
     "-D", f"CMAKE_TOOLCHAIN_FILE={vcpkgCmakeFile}",
+    "-D", f"VCPKG_TARGET_TRIPLET={vcpkgTargetTriplet}",
+    "-D", f"BUILD_STATIC_LIBS:BOOL={buildStaticLibsFlag}",
     f"--log-level={cmakeLogLevel}",
 ]
 
