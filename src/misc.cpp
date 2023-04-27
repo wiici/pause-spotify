@@ -18,7 +18,7 @@ std::string utf16_to_utf8(const std::wstring& utf16_string)
     if (written_bytes == 0)
         spdlog::error("Failed converting UTF-16 to UTF-8: \"{}\"", GetLastErrorMessage());
 
-    return std::move(std::string(utf8_string.get()));
+    return std::string(utf8_string.get());
 }
 
 std::string GetProcessExecName(const pid_t pid)

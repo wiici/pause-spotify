@@ -37,18 +37,18 @@ AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionCo
 }
 
 AudioSessionController::AudioSessionController(AudioSessionController&& obj)
-    : m_pAudioSessionControl2(std::move(obj.m_pAudioSessionControl2)),
-      m_relatedProcessName(std::move(obj.m_relatedProcessName)),
+    : m_pAudioSessionControl2(obj.m_pAudioSessionControl2),
+      m_relatedProcessName(obj.m_relatedProcessName),
       m_relatedPID(obj.m_relatedPID),
-      m_pAudioSessionNotifier(std::move(obj.m_pAudioSessionNotifier))
+      m_pAudioSessionNotifier(obj.m_pAudioSessionNotifier)
 {}
 
 AudioSessionController& AudioSessionController::operator=(AudioSessionController&& obj)
 {
-    m_pAudioSessionControl2 = std::move(obj.m_pAudioSessionControl2);
-    m_relatedProcessName = std::move(obj.m_relatedProcessName);
+    m_pAudioSessionControl2 = obj.m_pAudioSessionControl2;
+    m_relatedProcessName = obj.m_relatedProcessName;
     m_relatedPID = obj.m_relatedPID;
-    m_pAudioSessionNotifier = std::move(obj.m_pAudioSessionNotifier);
+    m_pAudioSessionNotifier = obj.m_pAudioSessionNotifier;
 
     return *this;
 }

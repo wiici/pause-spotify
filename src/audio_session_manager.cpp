@@ -12,7 +12,7 @@ namespace wrl = Microsoft::WRL;
 AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionManager2)
     : m_pAudioSessionManager2(&audioSessionManager2),
       m_pshrAudioSessions(
-          std::make_shared<AudioSessionList>(std::move(getAllAudioSessions())))
+          std::make_shared<AudioSessionList>(getAllAudioSessions()))
 {
     spdlog::info("Found {} active audio session at the beginning",
                  NonSpotifyAudioSessionEventNotifier::GetNumberOfActiveAudioSessions());
