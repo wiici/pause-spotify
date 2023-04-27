@@ -6,12 +6,28 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", dest="isDebug", action="store_true", default=False)
+parser.add_argument(
+    "--compiler", dest="compilerIdStr", choices=["clang", "msvc"], default="clang"
+)
 args = parser.parse_args()
 
 loggingLevel = logging.INFO
 if args.isDebug:
     loggingLevel = logging.DEBUG
 logging.basicConfig(format="%(message)s", level=loggingLevel)
+
+c_compiler = ""
+cpp_compiler = ""
+cmakeGenerator = ""
+match args.compilerIdStr:
+    case "clang":
+        c_compiler = "clang"
+        cpp_compiler = "clang++"
+        cmakeGenerator = "Ninja"
+    case "msvc":
+        c_compiler = "cl"
+        cpp_compiler = "cl"
+        cmakeGenerator = "Visual Studio 17 2022"
 
 # Can be set explicitly here
 vcpkgCmakeFile = ""
@@ -36,9 +52,9 @@ cmakeCmd = [
     "--fresh",
     "-S", projectRootDir,
     "-B", targetBuildDir,
-    "-G", "Ninja",
-    "-D", "CMAKE_CXX_COMPILER=clang++",
-    "-D", "CMAKE_C_COMPILER=clang",
+    "-G", f"{cmakeGenerator}",
+    "-D", f"CMAKE_CXX_COMPILER={cpp_compiler}",
+    "-D", f"CMAKE_C_COMPILER={c_compiler}",
     "-D", f"CMAKE_TOOLCHAIN_FILE={vcpkgCmakeFile}",
     f"--log-level={cmakeLogLevel}",
 ]
@@ -48,6 +64,6 @@ logging.debug(f'\nCMake command:\n "{cmakeCmd}"\n')
 result = subprocess.run(cmakeCmd)
 
 if result.returncode == 0:
-    logging.info("\nFinished configuring CMake project")
+    logging.info("\n\033[32m Finished configuring CMake project \033[0m")
 else:
-    logging.error("\nConfiguring CMake project failed")
+    logging.error("\n\033[31m Configuring CMake project failed \033[0m")
