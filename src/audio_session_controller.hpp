@@ -14,12 +14,12 @@ private:
     std::string m_relatedProcessName = "<unknown>";
 
 public:
+    AudioSessionController() = default;
     AudioSessionController(IAudioSessionControl2* pSessionController);
+    AudioSessionController(const AudioSessionController& obj);
     AudioSessionController(AudioSessionController&& obj);
+    AudioSessionController& operator=(const AudioSessionController& obj);
     AudioSessionController& operator=(AudioSessionController&& obj);
-
-    AudioSessionController(const AudioSessionController& obj) = delete;
-    AudioSessionController& operator=(const AudioSessionController& obj) = delete;
 
     ~AudioSessionController();
 
