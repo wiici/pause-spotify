@@ -11,11 +11,11 @@ class NonSpotifyAudioSessionEventNotifier : public IAudioSessionEvents {
 private:
     long m_refCounter = 1;
     const std::string m_relatedProcessName = "<unknown>";
-    const DWORD m_relatedPID = 0;
+    const pid_t m_relatedPID = 0;
     static std::atomic_uint ActiveSessionCnt;
 
     NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
-                                        const DWORD relatedPID);
+                                        const pid_t relatedPID);
 
 public:
     NonSpotifyAudioSessionEventNotifier() = delete;
@@ -28,7 +28,7 @@ public:
 
     static HRESULT
         CreateInstance(const AudioSessionState& currState,
-                       const std::string& relatedProcessName, const DWORD relatedPID,
+                       const std::string& relatedProcessName, const pid_t relatedPID,
                        NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier);
 
     HRESULT QueryInterface(REFIID riid, void** ppv) override;

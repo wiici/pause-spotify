@@ -1,5 +1,7 @@
 #pragma once
 
+#include "misc.hpp"
+
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -25,7 +27,7 @@ public:
 
     static SpotifyApp& GetInstance();
 
-    static bool IsSpotifyProcess(const unsigned int pid);
+    static bool IsSpotifyProcess(const pid_t pid);
     static void DoOperation(const SpotifyOperationType type);
     static void SetAccessToken(const std::string_view token);
     static void SetInteractionType(const SpotifyInteractionType interactionType);

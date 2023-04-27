@@ -1,7 +1,5 @@
 #include "spotify_app.hpp"
 
-#include "misc.hpp"
-
 #include <array>
 #include <cassert>
 #include <curl/curl.h>
@@ -81,7 +79,7 @@ SpotifyApp& SpotifyApp::GetInstance()
     return instance;
 }
 
-bool SpotifyApp::IsSpotifyProcess(const unsigned int pid)
+bool SpotifyApp::IsSpotifyProcess(const pid_t pid)
 {
     if (pid == 0)
         return false;
@@ -321,7 +319,7 @@ void SpotifyApp::playUsingWindowKey()
 BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     HWND* hSpotifyWindow = reinterpret_cast<HWND*>(lParam);
-    DWORD pid = 0;
+    pid_t pid = 0;
     GetWindowThreadProcessId(hwnd, &pid);
     if (SpotifyApp::IsSpotifyProcess(pid))
     {

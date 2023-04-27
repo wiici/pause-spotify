@@ -7,7 +7,7 @@
 std::atomic_uint NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt = 0;
 
 NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
-    const std::string& relatedProcessName, const DWORD relatedPID)
+    const std::string& relatedProcessName, const pid_t relatedPID)
     : m_relatedProcessName(relatedProcessName),
       m_relatedPID(relatedPID)
 {
@@ -20,7 +20,7 @@ NonSpotifyAudioSessionEventNotifier::~NonSpotifyAudioSessionEventNotifier() {}
 
 HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
     const AudioSessionState& currState, const std::string& relatedProcessName,
-    const DWORD relatedPID, NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
+    const pid_t relatedPID, NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
 
