@@ -5,6 +5,7 @@ find_package(CURL CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
 include(${CMAKE_MODULE_PATH}/CompilerWarnings.cmake)
+include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 
 add_executable(${PAUSE_SPOTIFY_TARGET})
 target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
@@ -30,3 +31,8 @@ set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/debug"
 	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<IF:$<BOOL:${BUILD_STATIC_LIBS}>,,DLL>"
 )
+
+if (ENABLE_CLANG_TIDY)
+	message(STATUS "Enable clang-tidy")
+	enable_clang_tidy_for_target(${PAUSE_SPOTIFY_TARGET})
+endif()

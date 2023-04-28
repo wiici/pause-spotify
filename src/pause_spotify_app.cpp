@@ -5,9 +5,13 @@
 #include "misc.hpp"
 #include "spotify_app.hpp"
 
+#include <chrono>
 #include <combaseapi.h>
 #include <comdef.h>
 #include <iostream>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
 {
@@ -41,7 +45,7 @@ PauseSpotifyApp::~PauseSpotifyApp()
 void PauseSpotifyApp::run()
 {
     DefaultAudioRenderingEndpoint defaultAudioDevice;
-    AudioSessionManager defaultAudioSessionsManager =
+    const AudioSessionManager defaultAudioSessionsManager =
         defaultAudioDevice.getAudioSessionManager();
 
     spdlog::debug("Enter app while loop");
@@ -53,7 +57,7 @@ void PauseSpotifyApp::run()
             break;
         }
 
-        Sleep(100);
+        std::this_thread::sleep_for(100ms);
     }
     spdlog::debug("Leave app while loop");
 }

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <curl/curl.h>
 #include <fmt/format.h>
-#include <iso646.h>
 #include <psapi.h>
 #include <spdlog/spdlog.h>
 
@@ -116,7 +115,8 @@ bool SpotifyApp::IsSpotifyProcess(const pid_t pid)
     }
     else
     {
-        std::string strProcessName(processNameBuffer.begin(), processNameBuffer.end());
+        const std::string strProcessName(processNameBuffer.begin(),
+                                         processNameBuffer.end());
 
         auto findPos = strProcessName.rfind("Spotify.exe");
 
@@ -168,10 +168,7 @@ void SpotifyApp::SetInteractionType(const std::string_view interactionTypeStr)
 
 bool SpotifyApp::NeedToken()
 {
-    if (GetInstance().m_interactionType == SpotifyInteractionType::API)
-        return true;
-
-    return false;
+    return GetInstance().m_interactionType == SpotifyInteractionType::API;
 }
 
 void SpotifyApp::pause()
@@ -307,6 +304,7 @@ void SpotifyApp::pauseUsingWindowKey()
 
 void SpotifyApp::playUsingWindowKey()
 {
+    // TODO: Change setSpotifyWindowHandler()
     if (m_spotifyWindow == nullptr)
         setSpotifyWindowHandler();
 
@@ -316,7 +314,7 @@ void SpotifyApp::playUsingWindowKey()
                 MAKELPARAM(0, APPCOMMAND_MEDIA_PLAY));
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) noexcept
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 {
     HWND* hSpotifyWindow = reinterpret_cast<HWND*>(lParam);
     pid_t pid = 0;

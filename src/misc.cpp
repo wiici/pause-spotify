@@ -18,7 +18,7 @@ std::string utf16_to_utf8(const std::wstring& utf16_string)
     if (written_bytes == 0)
         spdlog::error("Failed converting UTF-16 to UTF-8: \"{}\"", GetLastErrorMessage());
 
-    return std::string(utf8_string.get());
+    return { utf8_string.get() };
 }
 
 std::string GetProcessExecName(const pid_t pid)
@@ -42,8 +42,8 @@ std::string GetProcessExecName(const pid_t pid)
                            (DWORD)wModuleBaseNameBuffer.max_size());
     if (copiedStrLen != 0)
     {
-        std::wstring wstrModuleBaseName(wModuleBaseNameBuffer.begin(),
-                                        wModuleBaseNameBuffer.end());
+        const std::wstring wstrModuleBaseName(wModuleBaseNameBuffer.begin(),
+                                              wModuleBaseNameBuffer.end());
         result = utf16_to_utf8(wstrModuleBaseName);
     }
     else

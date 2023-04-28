@@ -19,7 +19,7 @@ public:
 
     static HRESULT
         CreateInstance(const AudioSessionState& currState,
-                       const std::string& relatedProcessName, const pid_t relatedPID,
+                       const std::string_view relatedProcessName, const pid_t relatedPID,
                        NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier);
 
     HRESULT QueryInterface(REFIID riid, void** ppv) override;
@@ -49,6 +49,6 @@ private:
     const pid_t m_relatedPID = 0;
     static std::atomic_uint ActiveSessionCnt;
 
-    NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
+    NonSpotifyAudioSessionEventNotifier(const std::string_view relatedProcessName,
                                         const pid_t relatedPID);
 };

@@ -12,6 +12,9 @@ parser.add_argument(
 parser.add_argument(
     "--with-static-libs", dest="withStaticLibs", action="store_true", default=False
 )
+parser.add_argument(
+    "--enable-clang-tidy", dest="enableClangTidy", action="store_true", default=False
+)
 args = parser.parse_args()
 
 loggingLevel = logging.INFO
@@ -51,6 +54,10 @@ if args.withStaticLibs:
 buildStaticLibsFlag = "FALSE"
 if args.withStaticLibs:
     buildStaticLibsFlag = "TRUE"
+enableClangTidyFlag = "FALSE"
+if args.enableClangTidy:
+    enableClangTidyFlag = "TRUE"
+
 if args.isDebug:
     cmakeLogLevel = "TRACE"
 
@@ -67,6 +74,7 @@ cmakeCmd = [
     "-D", f"CMAKE_TOOLCHAIN_FILE={vcpkgCmakeFile}",
     "-D", f"VCPKG_TARGET_TRIPLET={vcpkgTargetTriplet}",
     "-D", f"BUILD_STATIC_LIBS:BOOL={buildStaticLibsFlag}",
+    "-D", f"ENABLE_CLANG_TIDY:BOOL={enableClangTidyFlag}",
     f"--log-level={cmakeLogLevel}",
 ]
 

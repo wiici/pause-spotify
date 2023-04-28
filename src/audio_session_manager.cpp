@@ -35,20 +35,20 @@ AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionMana
 
 AudioSessionManager::~AudioSessionManager()
 {
-    if (m_pAudioSessionManager2)
+    if (m_pAudioSessionManager2 == nullptr)
+        return;
+
+    auto hr = m_pAudioSessionManager2->UnregisterSessionNotification(
+        m_pNewAudioSessionNotifier.Get());
+    if (FAILED(hr))
     {
-        auto hr = m_pAudioSessionManager2->UnregisterSessionNotification(
-            m_pNewAudioSessionNotifier.Get());
-        if (FAILED(hr))
-        {
-            spdlog::warn("Failed to unregister event notification about new "
-                         "audio session. Reason is: {}",
-                         _com_error(hr).ErrorMessage());
-        }
-        else
-        {
-            spdlog::debug("--- Unregister notification about new audio session event");
-        }
+        spdlog::warn("Failed to unregister event notification about new "
+                     "audio session. Reason is: {}",
+                     _com_error(hr).ErrorMessage());
+    }
+    else
+    {
+        spdlog::debug("--- Unregister notification about new audio session event");
     }
 }
 

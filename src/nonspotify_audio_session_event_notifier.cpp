@@ -2,22 +2,15 @@
 
 #include "spotify_app.hpp"
 
+#include <chrono>
 #include <spdlog/spdlog.h>
+
+using namespace std::chrono_literals;
 
 std::atomic_uint NonSpotifyAudioSessionEventNotifier::ActiveSessionCnt = 0;
 
-NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
-    const std::string& relatedProcessName, const pid_t relatedPID)
-    : m_relatedProcessName(relatedProcessName),
-      m_relatedPID(relatedPID)
-{
-    SPDLOG_DEBUG("Creating instance of NonSpotifyAudioSessionEventNotifier for "
-                 "process {} (PID {}): {}",
-                 m_relatedProcessName, m_relatedPID, fmt::ptr(this));
-}
-
 HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
-    const AudioSessionState& currState, const std::string& relatedProcessName,
+    const AudioSessionState& currState, const std::string_view relatedProcessName,
     const pid_t relatedPID, NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
 {
     HRESULT hr = S_OK;
@@ -97,36 +90,36 @@ unsigned long NonSpotifyAudioSessionEventNotifier::Release()
 #pragma warning(push)
 #pragma warning(disable : 4100)
 
-HRESULT NonSpotifyAudioSessionEventNotifier::OnDisplayNameChanged(LPCWSTR NewDisplayName,
-                                                                  LPCGUID EventContext)
+HRESULT NonSpotifyAudioSessionEventNotifier::OnDisplayNameChanged(
+    [[maybe_unused]] LPCWSTR NewDisplayName, [[maybe_unused]] LPCGUID EventContext)
 {
     return S_OK;
 }
 
 HRESULT
-NonSpotifyAudioSessionEventNotifier::OnIconPathChanged(LPCWSTR NewIconPath,
-                                                       LPCGUID EventContext)
+NonSpotifyAudioSessionEventNotifier::OnIconPathChanged(
+    [[maybe_unused]] LPCWSTR NewIconPath, [[maybe_unused]] LPCGUID EventContext)
 {
     return S_OK;
 }
 
-HRESULT NonSpotifyAudioSessionEventNotifier::OnSimpleVolumeChanged(float NewVolume,
-                                                                   BOOL NewMute,
-                                                                   LPCGUID EventContext)
+HRESULT NonSpotifyAudioSessionEventNotifier::OnSimpleVolumeChanged(
+    [[maybe_unused]] float NewVolume, [[maybe_unused]] BOOL NewMute,
+    [[maybe_unused]] LPCGUID EventContext)
 {
     return S_OK;
 }
 
 HRESULT NonSpotifyAudioSessionEventNotifier::OnChannelVolumeChanged(
-    DWORD ChannelCount, float NewChannelVolumeArray[], DWORD ChangedChannel,
-    LPCGUID EventContext)
+    [[maybe_unused]] DWORD ChannelCount, [[maybe_unused]] float NewChannelVolumeArray[],
+    [[maybe_unused]] DWORD ChangedChannel, [[maybe_unused]] LPCGUID EventContext)
 {
     return S_OK;
 }
 
 HRESULT
-NonSpotifyAudioSessionEventNotifier::OnGroupingParamChanged(LPCGUID NewGroupingParam,
-                                                            LPCGUID EventContext)
+NonSpotifyAudioSessionEventNotifier::OnGroupingParamChanged(
+    [[maybe_unused]] LPCGUID NewGroupingParam, [[maybe_unused]] LPCGUID EventContext)
 {
     return S_OK;
 }
@@ -149,7 +142,7 @@ NonSpotifyAudioSessionEventNotifier::OnStateChanged(AudioSessionState NewState)
     case AudioSessionStateInactive:
         stateName = "INACTIVE";
         spdlog::debug("-----> PLAY SPOTIFY");
-        Sleep(2500);
+        std::this_thread::sleep_for(2.5s);
         --ActiveSessionCnt;
         if (ActiveSessionCnt == 0)
             SpotifyApp::DoOperation(SpotifyOperationType::Play);
@@ -203,4 +196,14 @@ HRESULT NonSpotifyAudioSessionEventNotifier::OnSessionDisconnected(
     spdlog::debug("Audio session disconnected (reason: \"{}\")", reason);
 
     return S_OK;
+}
+
+NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
+    const std::string_view relatedProcessName, const pid_t relatedPID)
+    : m_relatedProcessName(relatedProcessName),
+      m_relatedPID(relatedPID)
+{
+    SPDLOG_DEBUG("Creating instance of NonSpotifyAudioSessionEventNotifier for "
+                 "process {} (PID {}): {}",
+                 m_relatedProcessName, m_relatedPID, fmt::ptr(this));
 }

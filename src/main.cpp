@@ -1,6 +1,7 @@
 #include "pause_spotify_app.hpp"
 
 #include <iostream>
+#include <span>
 #include <Windows.h>
 
 int main(int argc, char* argv[])
@@ -9,7 +10,8 @@ int main(int argc, char* argv[])
 
     try
     {
-        AppOptions options(argc, argv);
+        const std::span<char*> args(argv, (size_t)argc);
+        const AppOptions options(args);
 
         PauseSpotifyApp mainApp(options);
         mainApp.run();

@@ -6,13 +6,12 @@
 #include <string>
 #include <Windows.h>
 #include <winrt/base.h>
-
 class ThreadNameFlag final : public spdlog::custom_flag_formatter {
 public:
-    void format(const spdlog::details::log_msg&, const std::tm&,
+    void format(const spdlog::details::log_msg&, const std::tm& tm_time,
                 spdlog::memory_buf_t& dest) override;
 
-    std::unique_ptr<custom_flag_formatter> clone() const override;
+    [[nodiscard]] std::unique_ptr<custom_flag_formatter> clone() const override;
 };
 
 Logger::Logger()
@@ -39,7 +38,8 @@ Logger::~Logger()
     spdlog::shutdown();
 }
 
-void ThreadNameFlag::format(const spdlog::details::log_msg&, const std::tm&,
+void ThreadNameFlag::format(const spdlog::details::log_msg&,
+                            [[maybe_unused]] const std::tm& tm_time,
                             spdlog::memory_buf_t& dest)
 {
     wchar_t* wstrThreadName = nullptr;

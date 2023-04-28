@@ -1,11 +1,12 @@
 #pragma once
 
 #include <boost/program_options.hpp>
+#include <span>
 
 class AppOptions {
 public:
     AppOptions() = delete;
-    AppOptions(int argc, char* argv[]);
+    AppOptions(const std::span<char*> args);
 
     ~AppOptions() = default;
 

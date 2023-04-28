@@ -10,10 +10,6 @@ class AudioSessionController {
 public:
     AudioSessionController() = default;
     AudioSessionController(IAudioSessionControl2* pSessionController);
-    AudioSessionController(const AudioSessionController& obj);
-    AudioSessionController(AudioSessionController&& obj);
-    AudioSessionController& operator=(const AudioSessionController& obj);
-    AudioSessionController& operator=(AudioSessionController&& obj);
 
     ~AudioSessionController();
 

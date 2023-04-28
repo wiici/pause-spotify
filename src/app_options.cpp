@@ -6,7 +6,7 @@
 
 namespace po = boost::program_options;
 
-AppOptions::AppOptions(int argc, char* argv[])
+AppOptions::AppOptions(const std::span<char*> args)
     : m_desc("Options")
 {
     m_desc.add_options()("help", "see help message")(
@@ -17,10 +17,10 @@ AppOptions::AppOptions(int argc, char* argv[])
 
     try
     {
-        po::store(po::parse_command_line(argc, argv, m_desc), m_vars);
+        po::store(po::parse_command_line((int)args.size(), args.data(), m_desc), m_vars);
         po::notify(m_vars);
 
-        if (m_vars.count("help"))
+        if (m_vars.count("help") > 0)
         {
             std::cout << m_desc;
             exit(0);
