@@ -1,9 +1,12 @@
 #include "pause_spotify_app.hpp"
 
 #include <iostream>
+#include <Windows.h>
 
 int main(int argc, char* argv[])
 {
+    SetThreadDescription(GetCurrentThread(), L"MainThread");
+
     try
     {
         AppOptions options(argc, argv);
