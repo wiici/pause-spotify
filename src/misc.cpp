@@ -8,12 +8,12 @@
 
 std::string utf16_to_utf8(const std::wstring& utf16_string)
 {
-    const auto utf8Size = static_cast<int>(utf16_string.size() * 2 + 1);
+    const auto utf8Size = utf16_string.size() * 2 + 1;
     auto utf8_string = std::make_unique<char[]>(utf8Size);
 
     auto written_bytes =
         WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, utf16_string.c_str(), -1,
-                            utf8_string.get(), utf8Size, nullptr, nullptr);
+                            utf8_string.get(), (int)utf8Size, nullptr, nullptr);
 
     if (written_bytes == 0)
         spdlog::error("Failed converting UTF-16 to UTF-8: \"{}\"", GetLastErrorMessage());
@@ -39,7 +39,7 @@ std::string GetProcessExecName(const pid_t pid)
     std::array<wchar_t, buffSize> wModuleBaseNameBuffer { L"<unknown_module_name>" };
     auto copiedStrLen =
         GetModuleBaseNameW(hProcess, nullptr, wModuleBaseNameBuffer.data(),
-                           static_cast<unsigned int>(wModuleBaseNameBuffer.max_size()));
+                           (DWORD)wModuleBaseNameBuffer.max_size());
     if (copiedStrLen != 0)
     {
         std::wstring wstrModuleBaseName(wModuleBaseNameBuffer.begin(),

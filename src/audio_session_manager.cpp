@@ -11,8 +11,7 @@ namespace wrl = Microsoft::WRL;
 
 AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionManager2)
     : m_pAudioSessionManager2(&audioSessionManager2),
-      m_pshrAudioSessions(
-          std::make_shared<AudioSessionList>(getAllAudioSessions()))
+      m_pshrAudioSessions(std::make_shared<AudioSessionList>(getAllAudioSessions()))
 {
     spdlog::info("Found {} active audio session at the beginning",
                  NonSpotifyAudioSessionEventNotifier::GetNumberOfActiveAudioSessions());
@@ -80,14 +79,12 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
         }
         else
         {
-            hr = pAudioSessionControl->QueryInterface(
-                IID_PPV_ARGS(pAudioSessionControl2.GetAddressOf()));
+            hr = pAudioSessionControl.As(&pAudioSessionControl2);
             if (FAILED(hr))
             {
-                _com_error err(hr);
                 spdlog::warn("Failed to query interface related to audio "
                              "session controller. Reason is \"{}\"",
-                             err.ErrorMessage());
+                             _com_error(hr).ErrorMessage());
             }
             else
             {

@@ -16,8 +16,6 @@ NonSpotifyAudioSessionEventNotifier::NonSpotifyAudioSessionEventNotifier(
                  m_relatedProcessName, m_relatedPID, fmt::ptr(this));
 }
 
-NonSpotifyAudioSessionEventNotifier::~NonSpotifyAudioSessionEventNotifier() {}
-
 HRESULT NonSpotifyAudioSessionEventNotifier::CreateInstance(
     const AudioSessionState& currState, const std::string& relatedProcessName,
     const pid_t relatedPID, NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier)
@@ -52,12 +50,12 @@ HRESULT NonSpotifyAudioSessionEventNotifier::QueryInterface(REFIID riid, void** 
     if (riid == IID_IUnknown)
     {
         AddRef();
-        *ppv = reinterpret_cast<IUnknown*>(this);
+        *ppv = static_cast<IUnknown*>(this);
     }
     else if (riid == __uuidof(IAudioSessionEvents))
     {
         AddRef();
-        *ppv = reinterpret_cast<IAudioSessionEvents*>(this);
+        *ppv = static_cast<IAudioSessionEvents*>(this);
     }
     else
     {

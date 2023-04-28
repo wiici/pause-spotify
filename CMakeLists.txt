@@ -9,4 +9,6 @@ if(NOT WIN32)
 	message(FATAL_ERROR "Platform not supported")
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
 add_subdirectory("src")

@@ -7,9 +7,9 @@
 #include <memory>
 #include <string>
 
-class NonSpotifyAudioSessionEventNotifier : public IAudioSessionEvents {
+class NonSpotifyAudioSessionEventNotifier final : public IAudioSessionEvents {
 private:
-    long m_refCounter = 1;
+    unsigned long m_refCounter = 1;
     const std::string m_relatedProcessName = "<unknown>";
     const pid_t m_relatedPID = 0;
     static std::atomic_uint ActiveSessionCnt;
@@ -19,7 +19,7 @@ private:
 
 public:
     NonSpotifyAudioSessionEventNotifier() = delete;
-    ~NonSpotifyAudioSessionEventNotifier();
+    ~NonSpotifyAudioSessionEventNotifier() = default;
 
     inline static auto GetNumberOfActiveAudioSessions()
     {

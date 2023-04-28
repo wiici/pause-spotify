@@ -3,6 +3,7 @@
 #include "spotify_app.hpp"
 
 #include <comdef.h>
+#include <iso646.h>
 #include <psapi.h>
 #include <spdlog/spdlog.h>
 
@@ -38,16 +39,16 @@ AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionCo
 
 AudioSessionController::AudioSessionController(const AudioSessionController& obj)
     : m_pAudioSessionControl2(obj.m_pAudioSessionControl2),
-      m_relatedProcessName(obj.m_relatedProcessName),
       m_relatedPID(obj.m_relatedPID),
-      m_pAudioSessionNotifier(obj.m_pAudioSessionNotifier)
+      m_pAudioSessionNotifier(obj.m_pAudioSessionNotifier),
+      m_relatedProcessName(obj.m_relatedProcessName)
 {}
 
 AudioSessionController::AudioSessionController(AudioSessionController&& obj)
     : m_pAudioSessionControl2(obj.m_pAudioSessionControl2),
-      m_relatedProcessName(obj.m_relatedProcessName),
       m_relatedPID(obj.m_relatedPID),
-      m_pAudioSessionNotifier(obj.m_pAudioSessionNotifier)
+      m_pAudioSessionNotifier(obj.m_pAudioSessionNotifier),
+      m_relatedProcessName(obj.m_relatedProcessName)
 {}
 
 AudioSessionController&
@@ -95,11 +96,6 @@ AudioSessionController::~AudioSessionController()
 bool AudioSessionController::isSystemSoundSession()
 {
     return m_pAudioSessionControl2->IsSystemSoundsSession() == S_OK;
-}
-
-bool AudioSessionController::isEmpty()
-{
-    return m_pAudioSessionControl2;
 }
 
 std::string_view AudioSessionController::getRelatedProcessName() const

@@ -11,6 +11,8 @@ public:
     AppOptions() = delete;
     AppOptions(int argc, char* argv[]);
 
+    ~AppOptions() = default;
+
     bool isDebugEnabled() const;
     std::string_view getToken() const;
     std::string_view getInteractionTypeStr() const;

@@ -48,12 +48,12 @@ HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
     if (riid == IID_IUnknown)
     {
         AddRef();
-        *ppv = reinterpret_cast<IUnknown*>(this);
+        *ppv = static_cast<IUnknown*>(this);
     }
     else if (riid == __uuidof(IAudioSessionNotification))
     {
         AddRef();
-        *ppv = reinterpret_cast<IAudioSessionNotification*>(this);
+        *ppv = static_cast<IAudioSessionNotification*>(this);
     }
     else
     {

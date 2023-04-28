@@ -24,7 +24,6 @@ public:
     ~AudioSessionController();
 
     bool isSystemSoundSession();
-    bool isEmpty();
     std::string_view getRelatedProcessName() const;
     pid_t getRelatedPID() const;
     bool isExpired() const;

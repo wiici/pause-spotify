@@ -36,7 +36,7 @@ AppOptions::AppOptions(int argc, char* argv[])
 
 bool AppOptions::isDebugEnabled() const
 {
-    return m_vars.count("debug");
+    return m_vars.count("debug") > 0;
 }
 
 std::string_view AppOptions::getToken() const

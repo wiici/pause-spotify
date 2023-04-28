@@ -4,6 +4,8 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(CURL CONFIG REQUIRED)
 find_package(Boost REQUIRED COMPONENTS program_options)
 
+include(${CMAKE_MODULE_PATH}/CompilerWarnings.cmake)
+
 add_executable(${PAUSE_SPOTIFY_TARGET})
 target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
 	main.cpp
@@ -22,7 +24,7 @@ target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
 
 target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
 target_compile_definitions(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CONFIG:Debug>:SPDLOG_ACTIVE_LEVEL=1>)
-target_compile_options(${PAUSE_SPOTIFY_TARGET} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/W4>)
+target_compile_options(${PAUSE_SPOTIFY_TARGET} PRIVATE ${COMPILER_WARNINGS} ${WARNING_AS_ERROR})
 set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES
 	CXX_STANDARD 23
 	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/release"

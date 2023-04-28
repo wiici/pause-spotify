@@ -5,15 +5,16 @@
 #include <audiopolicy.h>
 #include <mutex>
 
-class NewAudioSessionNotifier : public IAudioSessionNotification {
+class NewAudioSessionNotifier final : public IAudioSessionNotification {
 private:
-    long m_refCounter = 1;
+    unsigned long m_refCounter = 1;
     std::shared_ptr<AudioSessionList> m_pshrAudioSessions;
     static std::mutex mtx;
 
     NewAudioSessionNotifier(std::shared_ptr<AudioSessionList>& pshrAudioSessions);
 
 public:
+    NewAudioSessionNotifier() = default;
     ~NewAudioSessionNotifier() = default;
 
     static HRESULT CreateInstance(std::shared_ptr<AudioSessionList>& pshrAudioSessions,

@@ -4,6 +4,7 @@
 #include <cassert>
 #include <curl/curl.h>
 #include <fmt/format.h>
+#include <iso646.h>
 #include <psapi.h>
 #include <spdlog/spdlog.h>
 
@@ -106,9 +107,8 @@ bool SpotifyApp::IsSpotifyProcess(const pid_t pid)
     bool result = false;
 
     std::array<char, MAX_PATH> processNameBuffer { "<unknown>" };
-    auto copiedStrLen =
-        GetProcessImageFileNameA(hProcess, processNameBuffer.data(),
-                                 static_cast<DWORD>(processNameBuffer.max_size()));
+    auto copiedStrLen = GetProcessImageFileNameA(hProcess, processNameBuffer.data(),
+                                                 (DWORD)processNameBuffer.max_size());
     if (copiedStrLen == 0)
     {
         spdlog::error("Failed to get process image file name. Error is {}",
@@ -316,7 +316,7 @@ void SpotifyApp::playUsingWindowKey()
                 MAKELPARAM(0, APPCOMMAND_MEDIA_PLAY));
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) noexcept
 {
     HWND* hSpotifyWindow = reinterpret_cast<HWND*>(lParam);
     pid_t pid = 0;
