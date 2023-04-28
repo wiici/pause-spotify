@@ -6,11 +6,11 @@
 #include <Functiondiscoverykeys_devpkey.h>
 #include <spdlog/spdlog.h>
 
-namespace wrl = Microsoft::WRL;
+using namespace Microsoft::WRL;
 
 DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
 {
-    wrl::ComPtr<IMMDeviceEnumerator> pEnumerator;
+    ComPtr<IMMDeviceEnumerator> pEnumerator;
     auto hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
                                IID_PPV_ARGS(pEnumerator.GetAddressOf()));
 
@@ -18,7 +18,7 @@ DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
         throw _com_error(hr);
 
     hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia,
-                                              m_uptrDefaultDevice.GetAddressOf());
+                                              m_pDefaultDevice.GetAddressOf());
     if (FAILED(hr))
         throw _com_error(hr);
 
@@ -27,9 +27,9 @@ DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
 
 std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const
 {
-    wrl::ComPtr<IPropertyStore> pPropertyStore;
+    ComPtr<IPropertyStore> pPropertyStore;
     auto hr =
-        m_uptrDefaultDevice->OpenPropertyStore(STGM_READ, pPropertyStore.GetAddressOf());
+        m_pDefaultDevice->OpenPropertyStore(STGM_READ, pPropertyStore.GetAddressOf());
     if (FAILED(hr))
     {
         spdlog::warn("Cannot open device property store: \"{}\"",
@@ -47,8 +47,8 @@ std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const
 
 AudioSessionManager DefaultAudioRenderingEndpoint::getAudioSessionManager()
 {
-    wrl::ComPtr<IAudioSessionManager2> pAudioSessionManager2;
-    auto hr = m_uptrDefaultDevice->Activate(
+    ComPtr<IAudioSessionManager2> pAudioSessionManager2;
+    auto hr = m_pDefaultDevice->Activate(
         __uuidof(IAudioSessionManager2), CLSCTX_ALL, nullptr,
         reinterpret_cast<void**>(pAudioSessionManager2.GetAddressOf()));
 

@@ -8,15 +8,6 @@
 #include <string>
 
 class NonSpotifyAudioSessionEventNotifier final : public IAudioSessionEvents {
-private:
-    unsigned long m_refCounter = 1;
-    const std::string m_relatedProcessName = "<unknown>";
-    const pid_t m_relatedPID = 0;
-    static std::atomic_uint ActiveSessionCnt;
-
-    NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
-                                        const pid_t relatedPID);
-
 public:
     NonSpotifyAudioSessionEventNotifier() = delete;
     ~NonSpotifyAudioSessionEventNotifier() = default;
@@ -51,4 +42,13 @@ public:
     HRESULT OnStateChanged(AudioSessionState NewState) override;
 
     HRESULT OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason) override;
+
+private:
+    unsigned long m_refCounter = 1;
+    const std::string m_relatedProcessName = "<unknown>";
+    const pid_t m_relatedPID = 0;
+    static std::atomic_uint ActiveSessionCnt;
+
+    NonSpotifyAudioSessionEventNotifier(const std::string& relatedProcessName,
+                                        const pid_t relatedPID);
 };

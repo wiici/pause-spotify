@@ -7,12 +7,6 @@
 #include <wrl/client.h>
 
 class AudioSessionController {
-private:
-    Microsoft::WRL::ComPtr<IAudioSessionControl2> m_pAudioSessionControl2;
-    pid_t m_relatedPID = 0;
-    Microsoft::WRL::ComPtr<NonSpotifyAudioSessionEventNotifier> m_pAudioSessionNotifier;
-    std::string m_relatedProcessName = "<unknown>";
-
 public:
     AudioSessionController() = default;
     AudioSessionController(IAudioSessionControl2* pSessionController);
@@ -29,6 +23,11 @@ public:
     bool isExpired() const;
 
 private:
+    Microsoft::WRL::ComPtr<IAudioSessionControl2> m_pAudioSessionControl2;
+    pid_t m_relatedPID = 0;
+    Microsoft::WRL::ComPtr<NonSpotifyAudioSessionEventNotifier> m_pAudioSessionNotifier;
+    std::string m_relatedProcessName = "<unknown>";
+
     pid_t retrieveRelatedPID();
     std::string getAudioSessionDisplayName();
     std::string retrieveRelatedProcessName();

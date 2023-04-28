@@ -7,7 +7,7 @@
 #include <psapi.h>
 #include <spdlog/spdlog.h>
 
-namespace wrl = Microsoft::WRL;
+using namespace Microsoft::WRL;
 
 AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionManager2)
     : m_pAudioSessionManager2(&audioSessionManager2),
@@ -54,7 +54,7 @@ AudioSessionManager::~AudioSessionManager()
 
 AudioSessionList AudioSessionManager::getAllAudioSessions()
 {
-    wrl::ComPtr<IAudioSessionEnumerator> pSessionList;
+    ComPtr<IAudioSessionEnumerator> pSessionList;
     auto hr = m_pAudioSessionManager2->GetSessionEnumerator(pSessionList.GetAddressOf());
     if (FAILED(hr))
         throw _com_error(hr);
@@ -68,8 +68,8 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
 
     for (int i = 0; i < sessionCount; ++i)
     {
-        wrl::ComPtr<IAudioSessionControl> pAudioSessionControl;
-        wrl::ComPtr<IAudioSessionControl2> pAudioSessionControl2;
+        ComPtr<IAudioSessionControl> pAudioSessionControl;
+        ComPtr<IAudioSessionControl2> pAudioSessionControl2;
         hr = pSessionList->GetSession(i, pAudioSessionControl.GetAddressOf());
         if (FAILED(hr))
         {

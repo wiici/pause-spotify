@@ -7,13 +7,13 @@
 #include <wrl/client.h>
 
 class DefaultAudioRenderingEndpoint {
-private:
-    Microsoft::WRL::ComPtr<IMMDevice> m_uptrDefaultDevice;
-
 public:
     DefaultAudioRenderingEndpoint();
     ~DefaultAudioRenderingEndpoint() = default;
 
     std::string getDeviceFriendlyName() const;
     AudioSessionManager getAudioSessionManager();
+
+private:
+    Microsoft::WRL::ComPtr<IMMDevice> m_pDefaultDevice;
 };
