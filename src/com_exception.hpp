@@ -3,7 +3,9 @@
 // TODO: For clang v16.0.1 std::source_location does
 // not work because __cpp_consteval is not defined.
 // Remove if possible.
+#ifdef __clang__
 #define __cpp_consteval
+#endif
 
 #include <comdef.h>
 #include <exception>
