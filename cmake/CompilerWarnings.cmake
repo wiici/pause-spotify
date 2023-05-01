@@ -7,7 +7,6 @@
 if (MSVC)
     set(COMPILER_WARNINGS
             /Wall
-            /permissive
 
             /wd4710
             /wd4711

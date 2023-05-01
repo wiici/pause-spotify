@@ -1,11 +1,13 @@
 #include "logger.hpp"
 
+#include "misc.hpp"
 #include "spdlog/pattern_formatter.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <string>
 #include <Windows.h>
 #include <winrt/base.h>
+
 class ThreadNameFlag final : public spdlog::custom_flag_formatter {
 public:
     void format(const spdlog::details::log_msg&, const std::tm& tm_time,
