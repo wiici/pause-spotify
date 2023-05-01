@@ -314,7 +314,7 @@ void SpotifyApp::playUsingWindowKey()
                 MAKELPARAM(0, APPCOMMAND_MEDIA_PLAY));
 }
 
-BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) noexcept
 {
     HWND* hSpotifyWindow = reinterpret_cast<HWND*>(lParam);
     pid_t pid = 0;
