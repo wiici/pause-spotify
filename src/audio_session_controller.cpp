@@ -1,5 +1,6 @@
 #include "audio_session_controller.hpp"
 
+#include "com_exception.hpp"
 #include "spotify_app.hpp"
 
 #include <comdef.h>
@@ -17,20 +18,20 @@ AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionCo
     AudioSessionState currState = AudioSessionState::AudioSessionStateInactive;
     auto hr = m_pAudioSessionControl2->GetState(&currState);
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     hr = NonSpotifyAudioSessionEventNotifier::CreateInstance(
         currState, m_relatedProcessName, m_relatedPID,
         m_pAudioSessionNotifier.GetAddressOf());
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     hr = m_pAudioSessionControl2->RegisterAudioSessionNotification(
         m_pAudioSessionNotifier.Get());
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     spdlog::debug("+++ Register audio session event notification for PID {}",
                   m_relatedPID);

@@ -21,6 +21,7 @@ target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
 	spotify_app.hpp spotify_app.cpp
 	misc.hpp misc.cpp
 	logger.hpp logger.cpp
+	com_exception.hpp com_exception.cpp
 )
 
 target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)

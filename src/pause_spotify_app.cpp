@@ -1,6 +1,7 @@
 #include "pause_spotify_app.hpp"
 
 #include "audio_session_manager.hpp"
+#include "com_exception.hpp"
 #include "default_audio_rendering_endpoint.hpp"
 #include "misc.hpp"
 #include "spotify_app.hpp"
@@ -30,7 +31,7 @@ PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
 
     auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     spdlog::info("PauseSpotify start");
 }

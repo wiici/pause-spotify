@@ -1,5 +1,6 @@
 #include "audio_session_manager.hpp"
 
+#include "com_exception.hpp"
 #include "nonspotify_audio_session_event_notifier.hpp"
 
 #include <comdef.h>
@@ -20,7 +21,7 @@ AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionMana
         m_pshrAudioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     PrintAllAudioSessionsInfo(*m_pshrAudioSessions);
 
@@ -28,7 +29,7 @@ AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionMana
         m_pNewAudioSessionNotifier.Get());
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     spdlog::debug("+++ Register notification about new audio session event");
 }
@@ -57,12 +58,12 @@ AudioSessionList AudioSessionManager::getAllAudioSessions()
     ComPtr<IAudioSessionEnumerator> pSessionList;
     auto hr = m_pAudioSessionManager2->GetSessionEnumerator(pSessionList.GetAddressOf());
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     int sessionCount = 0;
     hr = pSessionList->GetCount(&sessionCount);
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     AudioSessionList allAudioSessions;
 

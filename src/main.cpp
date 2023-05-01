@@ -1,3 +1,4 @@
+#include "com_exception.hpp"
 #include "pause_spotify_app.hpp"
 
 #include <iostream>
@@ -16,10 +17,14 @@ int main(int argc, char* argv[])
         PauseSpotifyApp mainApp(options);
         mainApp.run();
     }
+    catch (const ComException& e)
+    {
+        std::cerr << e.what() << "\n";
+        return -1;
+    }
     catch (const std::exception& e)
     {
-        std::cerr << "Exception: \"" << e.what() << "\"\n";
-
+        std::cerr << "Exception: " << e.what() << "\n";
         return -1;
     }
 }

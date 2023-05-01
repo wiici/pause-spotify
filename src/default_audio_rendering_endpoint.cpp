@@ -1,5 +1,7 @@
 #include "default_audio_rendering_endpoint.hpp"
 
+#include "com_exception.hpp"
+
 #include <audiopolicy.h>
 #include <combaseapi.h>
 #include <comdef.h>
@@ -15,12 +17,12 @@ DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
                                IID_PPV_ARGS(pEnumerator.GetAddressOf()));
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia,
                                               m_pDefaultDevice.GetAddressOf());
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     spdlog::info("Default audio rendering endpoint: \"{}\"", getDeviceFriendlyName());
 }
@@ -53,7 +55,7 @@ AudioSessionManager DefaultAudioRenderingEndpoint::getAudioSessionManager()
         reinterpret_cast<void**>(pAudioSessionManager2.GetAddressOf()));
 
     if (FAILED(hr))
-        throw _com_error(hr);
+        throw ComException(hr);
 
     return { *pAudioSessionManager2.Detach() };
 }
