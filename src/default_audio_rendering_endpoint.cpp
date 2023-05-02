@@ -23,8 +23,6 @@ DefaultAudioRenderingEndpoint::DefaultAudioRenderingEndpoint()
                                               m_pDefaultDevice.GetAddressOf());
     if (FAILED(hr))
         throw ComException(hr);
-
-    spdlog::info("Default audio rendering endpoint: \"{}\"", getDeviceFriendlyName());
 }
 
 std::string DefaultAudioRenderingEndpoint::getDeviceFriendlyName() const

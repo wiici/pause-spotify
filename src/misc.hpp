@@ -1,8 +1,7 @@
 #pragma once
 
+#include <comdef.h>
 #include <string>
-#include <Windows.h>
-
 #include <version>
 
 using pid_t = DWORD;

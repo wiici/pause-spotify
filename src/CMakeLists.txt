@@ -10,8 +10,8 @@ include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 add_executable(${PAUSE_SPOTIFY_TARGET})
 target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
 	main.cpp
-	pause_spotify_app.hpp pause_spotify_app.cpp
-	app_options.hpp app_options.cpp
+	application.hpp application.cpp
+	app_config.hpp app_config.cpp
 	new_audio_session_notifier.hpp new_audio_session_notifier.cpp
 	nonspotify_audio_session_event_notifier.hpp nonspotify_audio_session_event_notifier.cpp
 	audio_session_controller.hpp audio_session_controller.cpp

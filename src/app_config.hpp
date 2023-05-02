@@ -3,12 +3,12 @@
 #include <boost/program_options.hpp>
 #include <span>
 
-class AppOptions {
+class AppConfiguration {
 public:
-    AppOptions() = delete;
-    AppOptions(const std::span<char*> args);
+    AppConfiguration() = delete;
+    AppConfiguration(const std::span<char*> args);
 
-    ~AppOptions() = default;
+    ~AppConfiguration() = default;
 
     bool isDebugEnabled() const;
     std::string_view getToken() const;

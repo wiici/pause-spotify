@@ -1,5 +1,5 @@
+#include "application.hpp"
 #include "com_exception.hpp"
-#include "pause_spotify_app.hpp"
 
 #include <iostream>
 #include <span>
@@ -12,10 +12,10 @@ int main(int argc, char* argv[])
     try
     {
         const std::span<char*> args(argv, (size_t)argc);
-        const AppOptions options(args);
+        const AppConfiguration appConfig(args);
 
-        PauseSpotifyApp mainApp(options);
-        mainApp.run();
+        Application app(appConfig);
+        app.run();
     }
     catch (const ComException& e)
     {

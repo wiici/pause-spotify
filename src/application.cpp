@@ -1,4 +1,4 @@
-#include "pause_spotify_app.hpp"
+#include "application.hpp"
 
 #include "audio_session_manager.hpp"
 #include "com_exception.hpp"
@@ -14,9 +14,9 @@
 
 using namespace std::chrono_literals;
 
-PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
+Application::Application(const AppConfiguration& appConfig)
 {
-    bool isDebugConfiguration = options.isDebugEnabled();
+    bool isDebugConfiguration = appConfig.isDebugEnabled();
 #if defined _DEBUG
     isDebugConfiguration = true;
 #endif
@@ -24,10 +24,10 @@ PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
     if (isDebugConfiguration)
         spdlog::set_level(spdlog::level::debug);
 
-    SpotifyApp::SetInteractionType(options.getInteractionTypeStr());
+    SpotifyApp::SetInteractionType(appConfig.getInteractionTypeStr());
 
     if (SpotifyApp::NeedToken())
-        SpotifyApp::SetAccessToken(options.getToken());
+        SpotifyApp::SetAccessToken(appConfig.getToken());
 
     auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if (FAILED(hr))
@@ -36,20 +36,24 @@ PauseSpotifyApp::PauseSpotifyApp(const AppOptions& options)
     spdlog::info("PauseSpotify start");
 }
 
-PauseSpotifyApp::~PauseSpotifyApp()
+Application::~Application()
 {
     CoUninitialize();
 
     spdlog::info("PauseSpotify end");
 }
 
-void PauseSpotifyApp::run()
+void Application::run()
 {
     DefaultAudioRenderingEndpoint defaultAudioDevice;
-    const AudioSessionManager defaultAudioSessionsManager =
+
+    spdlog::info("Default audio rendering endpoint: \"{}\"",
+                 defaultAudioDevice.getDeviceFriendlyName());
+
+    const AudioSessionManager audioSessionsManager =
         defaultAudioDevice.getAudioSessionManager();
 
-    spdlog::debug("Enter app while loop");
+    spdlog::debug("Enter application while loop");
     while (true)
     {
         if (GetAsyncKeyState(VK_NUMPAD0) != 0)
@@ -60,5 +64,5 @@ void PauseSpotifyApp::run()
 
         std::this_thread::sleep_for(100ms);
     }
-    spdlog::debug("Leave app while loop");
+    spdlog::debug("Leave application while loop");
 }

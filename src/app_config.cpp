@@ -1,4 +1,4 @@
-#include "app_options.hpp"
+#include "app_config.hpp"
 
 #include <iostream>
 #include <string>
@@ -6,7 +6,7 @@
 
 namespace po = boost::program_options;
 
-AppOptions::AppOptions(const std::span<char*> args)
+AppConfiguration::AppConfiguration(const std::span<char*> args)
     : m_desc("Options")
 {
     m_desc.add_options()("help", "see help message")(
@@ -34,17 +34,17 @@ AppOptions::AppOptions(const std::span<char*> args)
     }
 }
 
-bool AppOptions::isDebugEnabled() const
+bool AppConfiguration::isDebugEnabled() const
 {
     return m_vars.count("debug") > 0;
 }
 
-std::string_view AppOptions::getToken() const
+std::string_view AppConfiguration::getToken() const
 {
     return m_vars["token"].as<const std::string&>();
 }
 
-std::string_view AppOptions::getInteractionTypeStr() const
+std::string_view AppConfiguration::getInteractionTypeStr() const
 {
     return m_vars["inter-type"].as<const std::string&>();
 }
