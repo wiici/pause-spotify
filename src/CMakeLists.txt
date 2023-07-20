@@ -8,7 +8,9 @@ include(${CMAKE_MODULE_PATH}/CompilerWarnings.cmake)
 include(${CMAKE_MODULE_PATH}/ClangTidy.cmake)
 
 add_executable(${PAUSE_SPOTIFY_TARGET})
-target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
+target_sources(
+	${PAUSE_SPOTIFY_TARGET}
+	PRIVATE
 	main.cpp
 	application.hpp application.cpp
 	app_config.hpp app_config.cpp
@@ -24,13 +26,18 @@ target_sources(${PAUSE_SPOTIFY_TARGET} PRIVATE
 	com_exception.hpp com_exception.cpp
 )
 
-target_link_libraries(${PAUSE_SPOTIFY_TARGET} PRIVATE spdlog::spdlog CURL::libcurl Boost::program_options)
-target_compile_options(${PAUSE_SPOTIFY_TARGET} PRIVATE ${COMPILER_WARNINGS} ${WARNING_AS_ERROR})
-set_target_properties(${PAUSE_SPOTIFY_TARGET} PROPERTIES
-	CXX_STANDARD 23
-	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/bin/release"
-	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/bin/debug"
-	MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<IF:$<BOOL:${BUILD_STATIC_LIBS}>,,DLL>"
+target_link_libraries(
+	${PAUSE_SPOTIFY_TARGET}
+	PRIVATE
+	spdlog::spdlog
+	CURL::libcurl
+	Boost::program_options
+)
+target_compile_options(
+	${PAUSE_SPOTIFY_TARGET}
+	PRIVATE
+	${COMPILER_WARNINGS}
+	${WARNING_AS_ERROR}
 )
 
 if (ENABLE_CLANG_TIDY)

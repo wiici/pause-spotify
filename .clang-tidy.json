@@ -7,11 +7,6 @@
                -google-*,
                -llvm*,
                -zircon-*,
-               -modernize-use-trailing-return-type,
-               -readability-identifier-length,
-               -readability-else-after-return,
-               -readability-braces-around-statements,
-               -hicpp-braces-around-statements
                ",
     "CheckOptions": [
     ],

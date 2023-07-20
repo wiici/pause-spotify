@@ -10,9 +10,6 @@ parser.add_argument(
     "--compiler", dest="compilerIdStr", choices=["clang", "msvc"], default="clang"
 )
 parser.add_argument(
-    "--with-static-libs", dest="withStaticLibs", action="store_true", default=False
-)
-parser.add_argument(
     "--enable-clang-tidy", dest="enableClangTidy", action="store_true", default=False
 )
 args = parser.parse_args()
@@ -49,11 +46,7 @@ projectRootDir = pathlib.Path(__file__).parent.resolve()
 targetBuildDir = f"{projectRootDir}/build"
 cmakeLogLevel = "WARNING"
 vcpkgTargetTriplet = "x64-windows"
-if args.withStaticLibs:
-    vcpkgTargetTriplet += "-static"
 buildStaticLibsFlag = "FALSE"
-if args.withStaticLibs:
-    buildStaticLibsFlag = "TRUE"
 enableClangTidyFlag = "FALSE"
 if args.enableClangTidy:
     enableClangTidyFlag = "TRUE"
@@ -73,7 +66,6 @@ cmakeCmd = [
     "-D", f"CMAKE_C_COMPILER={c_compiler}",
     "-D", f"CMAKE_TOOLCHAIN_FILE={vcpkgCmakeFile}",
     "-D", f"VCPKG_TARGET_TRIPLET={vcpkgTargetTriplet}",
-    "-D", f"BUILD_STATIC_LIBS:BOOL={buildStaticLibsFlag}",
     "-D", f"ENABLE_CLANG_TIDY:BOOL={enableClangTidyFlag}",
     f"--log-level={cmakeLogLevel}",
 ]

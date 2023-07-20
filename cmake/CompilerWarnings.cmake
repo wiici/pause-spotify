@@ -5,20 +5,21 @@
 #
 
 if (MSVC)
-    set(COMPILER_WARNINGS
-            /Wall
-
-            /wd4710
-            /wd4711
-            /wd5045
-            /wd4820
-            /wd4626
+    set(
+        COMPILER_WARNINGS
+        /Wall
+        /wd4710
+        /wd4711
+        /wd5045
+        /wd4820
+        /wd4626
     )
 
     set(WARNING_AS_ERROR /WX)
 
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(COMPILER_WARNINGS
+    set(
+        COMPILER_WARNINGS
         -Wall
         -Wextra
         -Wshadow
