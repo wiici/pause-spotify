@@ -6,6 +6,11 @@ if(NOT WIN32)
 	message(FATAL_ERROR "Platform not supported")
 endif()
 
+# With "Visual Studio" CMake generator, pass only if compiler is set to ClangCl
+if(MSVC AND (NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+	message(FATAL_ERROR "Cannot build with MSVC due to the lack of support for statement expression used with std::expected")
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_DEBUG_POSTFIX d)

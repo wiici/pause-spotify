@@ -1,99 +1,122 @@
 #include "audio_session_manager.hpp"
 
-#include "com_exception.hpp"
+#include "expected_helper.hpp"
 #include "nonspotify_audio_session_event_notifier.hpp"
 
-#include <comdef.h>
 #include <list>
-#include <psapi.h>
 #include <spdlog/spdlog.h>
+#include <utility>
 
 using namespace Microsoft::WRL;
 
-AudioSessionManager::AudioSessionManager(IAudioSessionManager2& audioSessionManager2)
-    : m_pAudioSessionManager2(&audioSessionManager2),
-      m_pshrAudioSessions(std::make_shared<AudioSessionList>(getAllAudioSessions()))
+auto AudioSessionsManager::Create(
+    const ComPtr<IAudioSessionManager2> pAudioSessionManager)
+    -> std::expected<AudioSessionsManager, ComError>
 {
+    auto pshrInitAudioSessionList = std::make_shared<AudioSessionList>(
+        TRY(GetAllAudioSessions(pAudioSessionManager)));
+
+    ComPtr<NewAudioSessionNotifier> pNewAudioSessionNotifier;
+    auto hr = NewAudioSessionNotifier::CreateInstance(
+        pshrInitAudioSessionList, pNewAudioSessionNotifier.GetAddressOf());
+
+    if (FAILED(hr)) {
+        return std::unexpected(ComError(hr));
+    }
+
+    hr =
+        pAudioSessionManager->RegisterSessionNotification(pNewAudioSessionNotifier.Get());
+
+    if (SUCCEEDED(hr)) {
+        spdlog::debug("Register notifier about new audio sessions");
+    }
+    else {
+        return std::unexpected(ComError(hr));
+    }
+
+    return std::expected<AudioSessionsManager, ComError>(
+        std::in_place, pshrInitAudioSessionList, pAudioSessionManager,
+        pNewAudioSessionNotifier);
+}
+
+AudioSessionsManager::~AudioSessionsManager()
+{
+    spdlog::debug("Delete object of AudioSessionManager");
+
+    if (m_pAudioSessionManager == nullptr) {
+        return;
+    }
+    if (m_pNewAudioSessionNotifier == nullptr) {
+        return;
+    }
+
+    auto hr = m_pAudioSessionManager->UnregisterSessionNotification(
+        m_pNewAudioSessionNotifier.Get());
+    if (SUCCEEDED(hr)) {
+        spdlog::debug("Unregister notifier about new audio sessions");
+    }
+    else {
+        spdlog::warn("Failed to unregister notifier about new audio sessions: {}",
+                     ComError(hr).GetErrorMessage());
+    }
+}
+
+AudioSessionsManager::AudioSessionsManager(
+    const std::shared_ptr<AudioSessionList> pshrInitAudioSessionList,
+    const ComPtr<IAudioSessionManager2> pAudioSessionManager,
+    const ComPtr<NewAudioSessionNotifier> pNewAudioSessionNotifier)
+    : m_pAudioSessionManager(pAudioSessionManager),
+      m_pNewAudioSessionNotifier(pNewAudioSessionNotifier),
+      m_pshrAudioSessionList(pshrInitAudioSessionList)
+{
+    spdlog::debug("Create object of AudioSessionManager");
+
+    m_pshrAudioSessionList->PrintAudioSessionsInfo();
+
     spdlog::info("Found {} active audio session at the beginning",
                  NonSpotifyAudioSessionEventNotifier::GetNumberOfActiveAudioSessions());
-
-    auto hr = NewAudioSessionNotifier::CreateInstance(
-        m_pshrAudioSessions, m_pNewAudioSessionNotifier.GetAddressOf());
-
-    if (FAILED(hr))
-        throw ComException(hr);
-
-    PrintAllAudioSessionsInfo(*m_pshrAudioSessions);
-
-    hr = m_pAudioSessionManager2->RegisterSessionNotification(
-        m_pNewAudioSessionNotifier.Get());
-
-    if (FAILED(hr))
-        throw ComException(hr);
-
-    spdlog::debug("+++ Register notification about new audio session event");
 }
 
-AudioSessionManager::~AudioSessionManager()
+auto AudioSessionsManager::GetAllAudioSessions(
+    const ComPtr<IAudioSessionManager2> pAudioSessionManager)
+    -> std::expected<std::list<AudioSession>, ComError>
 {
-    if (m_pAudioSessionManager2 == nullptr)
-        return;
-
-    auto hr = m_pAudioSessionManager2->UnregisterSessionNotification(
-        m_pNewAudioSessionNotifier.Get());
-    if (FAILED(hr))
-    {
-        spdlog::warn("Failed to unregister event notification about new "
-                     "audio session. Reason is: {}",
-                     _com_error(hr).ErrorMessage());
+    ComPtr<IAudioSessionEnumerator> pSessionsList;
+    auto hr = pAudioSessionManager->GetSessionEnumerator(pSessionsList.GetAddressOf());
+    if (FAILED(hr)) {
+        return std::unexpected(ComError(hr));
     }
-    else
-    {
-        spdlog::debug("--- Unregister notification about new audio session event");
-    }
-}
-
-AudioSessionList AudioSessionManager::getAllAudioSessions()
-{
-    ComPtr<IAudioSessionEnumerator> pSessionList;
-    auto hr = m_pAudioSessionManager2->GetSessionEnumerator(pSessionList.GetAddressOf());
-    if (FAILED(hr))
-        throw ComException(hr);
 
     int sessionCount = 0;
-    hr = pSessionList->GetCount(&sessionCount);
-    if (FAILED(hr))
-        throw ComException(hr);
+    hr = pSessionsList->GetCount(&sessionCount);
+    if (FAILED(hr)) {
+        return std::unexpected(ComError(hr));
+    }
 
-    AudioSessionList allAudioSessions;
+    std::list<AudioSession> allAudioSessions;
 
-    for (int i = 0; i < sessionCount; ++i)
-    {
+    for (int i = 0; i < sessionCount; ++i) {
         ComPtr<IAudioSessionControl> pAudioSessionControl;
         ComPtr<IAudioSessionControl2> pAudioSessionControl2;
-        hr = pSessionList->GetSession(i, pAudioSessionControl.GetAddressOf());
-        if (FAILED(hr))
-        {
-            spdlog::warn("Failed to get {} audio session controller from the "
-                         "list. Reason is \"{}\"",
-                         i + 1, _com_error(hr).ErrorMessage());
-        }
-        else
-        {
+
+        hr = pSessionsList->GetSession(i, pAudioSessionControl.GetAddressOf());
+        if (SUCCEEDED(hr)) {
             hr = pAudioSessionControl.As(&pAudioSessionControl2);
-            if (FAILED(hr))
-            {
+            if (SUCCEEDED(hr)) {
+                allAudioSessions.emplace_back(pAudioSessionControl2.Detach());
+            }
+            else {
                 spdlog::warn("Failed to query interface related to audio "
-                             "session controller. Reason is \"{}\"",
-                             _com_error(hr).ErrorMessage());
+                             "session controller: {}",
+                             ComError(hr).GetErrorMessage());
             }
-            else
-            {
-                allAudioSessions.emplace_back(
-                    AudioSessionController(pAudioSessionControl2.Detach()));
-            }
+        }
+        else {
+            spdlog::warn("Failed to get {} audio session controller from the "
+                         "list: {}",
+                         i + 1, ComError(hr).GetErrorMessage());
         }
     }
 
-    return allAudioSessions;
+    return {std::move(allAudioSessions)};
 }

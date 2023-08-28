@@ -1,75 +1,58 @@
 #include "audio_session_list.hpp"
 
-#include <algorithm>
 #include <list>
 #include <spdlog/spdlog.h>
+#include <optional>
 
-bool IsPidAlreadyInList(const AudioSessionList& audioSessions, const pid_t pid)
+AudioSessionList::AudioSessionList(std::list<AudioSession>&& initList)
+    : m_AudioSessions(std::move(initList))
+{}
+
+auto AudioSessionList::IsPidAlreadyInList(const pid_t pid) -> bool
 {
-    auto pidFinder = [&](const AudioSessionController& obj) {
-        return obj.getRelatedPID() == pid;
+    auto pidFinder = [&](const AudioSession& obj) {
+        return obj.GetRelatedPid().value() == pid;
     };
 
-    auto it = std::find_if(audioSessions.begin(), audioSessions.end(), pidFinder);
+    std::lock_guard<std::mutex> lock(m_mtx);
+    auto it = std::find_if(m_AudioSessions.begin(), m_AudioSessions.end(), pidFinder);
 
-    auto foundPID = false;
-    if (it != audioSessions.end())
-        foundPID = true;
-
-    return foundPID;
+    return (it != m_AudioSessions.end());
 }
 
-void AddAudioSessionIfNotExist(AudioSessionList& audioSessions,
-                               AudioSessionController&& newAudioSession)
+void AudioSessionList::AddAudioSession(AudioSession&& newAudioSession)
 {
-    spdlog::debug("Trying to add audio session \"{}\" (PID {})...",
-                  newAudioSession.getRelatedProcessName(),
-                  newAudioSession.getRelatedPID());
-
-    if (IsPidAlreadyInList(audioSessions, newAudioSession.getRelatedPID()))
-    {
-        spdlog::debug("New audio session related to PID {} is already in the list",
-                      newAudioSession.getRelatedPID());
-    }
-    else
-    {
-        // TODO: Fix
-        RemoveExpiredSessions(audioSessions);
-
-        audioSessions.push_back(std::move(newAudioSession));
-        spdlog::info("Added new audio session to the list");
-        PrintAllAudioSessionsInfo(audioSessions);
-    }
+    std::lock_guard<std::mutex> lock(m_mtx);
+    m_AudioSessions.push_back(std::move(newAudioSession));
 }
 
-void RemoveExpiredSessions(AudioSessionList& audioSessions)
+void AudioSessionList::RemoveExpiredSessions()
 {
-    for (auto it = audioSessions.begin(); it != audioSessions.end();)
-    {
-        if (it->isExpired())
-        {
-            spdlog::debug("Audio session for \"{}\" (PID {}) expired. Going to remove it "
-                          "from the list",
-                          it->getRelatedProcessName(), it->getRelatedPID());
+    std::lock_guard<std::mutex> lock(m_mtx);
+    for (auto it = m_AudioSessions.begin(); it != m_AudioSessions.end();) {
+        if (it->IsExpired()) {
+            spdlog::debug("Audio session related to the process \"{}\" (pid {}) expired. "
+                          "Going to remove it from the list",
+                          it->GetRelatedProcessName(), it->GetRelatedPid());
 
-            it = audioSessions.erase(it);
+            it = m_AudioSessions.erase(it);
         }
-        else
-        {
+        else {
             ++it;
         }
     }
 }
 
-void PrintAllAudioSessionsInfo(const AudioSessionList& audioSessions)
+void AudioSessionList::PrintAudioSessionsInfo()
 {
+    std::lock_guard<std::mutex> lock(m_mtx);
+
     int sessionCnt = 1;
-    spdlog::info("List of audio sessions ({}):", audioSessions.size());
-    for (const auto& session : audioSessions)
-    {
-        const std::string isExpired = session.isExpired() ? "EXPIRED" : "";
-        spdlog::info("{}. PID {} -> {} {}", sessionCnt, session.getRelatedPID(),
-                     session.getRelatedProcessName(), isExpired);
+    spdlog::info("List of audio sessions ({}):", m_AudioSessions.size());
+    for (const auto& session : m_AudioSessions) {
+        spdlog::info("{}. pid: {} | proc_name: {} | status: {}", sessionCnt,
+                     session.GetRelatedPid(), session.GetRelatedProcessName(),
+                     session.GetCurrentStateName());
 
         ++sessionCnt;
     }

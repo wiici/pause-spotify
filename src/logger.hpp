@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <spdlog/spdlog.h>
-#include <string>
+#include <spdlog/logger.h>
 
 class Logger {
 public:
@@ -10,5 +8,5 @@ public:
     ~Logger();
 
 private:
-    std::shared_ptr<spdlog::logger> m_consoleLogger;
+    std::shared_ptr<spdlog::logger> m_ConsoleLogger;
 };

@@ -4,51 +4,57 @@
 
 #include <atomic>
 #include <audiopolicy.h>
-#include <memory>
 #include <string>
 
 class NonSpotifyAudioSessionEventNotifier final : public IAudioSessionEvents {
 public:
-    NonSpotifyAudioSessionEventNotifier() = delete;
     ~NonSpotifyAudioSessionEventNotifier() = default;
 
     inline static auto GetNumberOfActiveAudioSessions()
     {
-        return ActiveSessionCnt.load();
+        return s_ActiveSessionCnt.load();
     }
 
-    static HRESULT
+    static auto
         CreateInstance(const AudioSessionState& currState,
                        const std::string_view relatedProcessName, const pid_t relatedPID,
-                       NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier);
+                       NonSpotifyAudioSessionEventNotifier** ppAudioSessionNotifier) -> HRESULT;
 
-    HRESULT QueryInterface(REFIID riid, void** ppv) override;
-    unsigned long AddRef() override;
-    unsigned long Release() override;
+    auto QueryInterface(REFIID riid, void** ppv) -> HRESULT override;
+    auto AddRef() -> unsigned long override;
+    auto Release() -> unsigned long override;
 
-    HRESULT OnDisplayNameChanged(LPCWSTR NewDisplayName, LPCGUID EventContext) override;
+    auto OnDisplayNameChanged(LPCWSTR NewDisplayName, LPCGUID EventContext)
+        -> HRESULT override;
 
-    HRESULT OnIconPathChanged(LPCWSTR NewIconPath, LPCGUID EventContext) override;
+    auto OnIconPathChanged(LPCWSTR NewIconPath, LPCGUID EventContext) -> HRESULT override;
 
-    HRESULT OnSimpleVolumeChanged(float NewVolume, BOOL NewMute,
-                                  LPCGUID EventContext) override;
+    auto OnSimpleVolumeChanged(float NewVolume, BOOL NewMute, LPCGUID EventContext)
+        -> HRESULT override;
 
-    HRESULT OnChannelVolumeChanged(DWORD ChannelCount, float NewChannelVolumeArray[],
-                                   DWORD ChangedChannel, LPCGUID EventContext) override;
+    auto OnChannelVolumeChanged(DWORD ChannelCount, float NewChannelVolumeArray[],
+                                DWORD ChangedChannel, LPCGUID EventContext)
+        -> HRESULT override;
 
-    HRESULT STDMETHODCALLTYPE OnGroupingParamChanged(LPCGUID NewGroupingParam,
-                                                     LPCGUID EventContext) override;
+    auto STDMETHODCALLTYPE OnGroupingParamChanged(LPCGUID NewGroupingParam,
+                                                  LPCGUID EventContext)
+        -> HRESULT override;
 
-    HRESULT OnStateChanged(AudioSessionState NewState) override;
+    auto OnStateChanged(AudioSessionState NewState) -> HRESULT override;
 
-    HRESULT OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason) override;
+    auto OnSessionDisconnected(AudioSessionDisconnectReason DisconnectReason)
+        -> HRESULT override;
 
 private:
-    unsigned long m_refCounter = 1;
-    const std::string m_relatedProcessName = "<unknown>";
-    const pid_t m_relatedPID = 0;
-    static std::atomic_uint ActiveSessionCnt;
+    unsigned long m_RefCounter = 1;
+    const std::string m_RelatedProcessName = "<unknown>";
+    const pid_t m_RelatedPid = 0;
+    static std::atomic_uint s_ActiveSessionCnt;
 
+    NonSpotifyAudioSessionEventNotifier() = delete;
     NonSpotifyAudioSessionEventNotifier(const std::string_view relatedProcessName,
                                         const pid_t relatedPID);
+
+    void OnAudioSessionActive();
+    void OnAudioSessionInactive();
 };

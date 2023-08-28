@@ -5,11 +5,13 @@
 
 class Application {
 public:
+    Application() = delete;
     Application(const AppConfiguration& appConfig);
+
     ~Application();
 
-    void run();
+    void Run();
 
 private:
-    Logger m_logger;
+    Logger m_Logger;
 };

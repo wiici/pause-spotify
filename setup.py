@@ -7,7 +7,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", dest="isDebug", action="store_true", default=False)
 parser.add_argument(
-    "--compiler", dest="compilerIdStr", choices=["clang", "msvc"], default="clang"
+    "--generator", dest="cmakeGenerator", choices=["Ninja", "Visual Studio 17 2022"], default="Ninja"
 )
 parser.add_argument(
     "--enable-clang-tidy", dest="enableClangTidy", action="store_true", default=False
@@ -19,18 +19,9 @@ if args.isDebug:
     loggingLevel = logging.DEBUG
 logging.basicConfig(format="%(message)s", level=loggingLevel)
 
-c_compiler = ""
-cpp_compiler = ""
-cmakeGenerator = ""
-match args.compilerIdStr:
-    case "clang":
-        c_compiler = "clang"
-        cpp_compiler = "clang++"
-        cmakeGenerator = "Ninja"
-    case "msvc":
-        c_compiler = "cl"
-        cpp_compiler = "cl"
-        cmakeGenerator = "Visual Studio 17 2022"
+cmakeToolset = ""
+if "Visual Studio" in args.cmakeGenerator:
+    cmakeToolset = "ClangCl"
 
 # Can be set explicitly here
 vcpkgCmakeFile = ""
@@ -61,12 +52,12 @@ cmakeCmd = [
     "--fresh",
     "-S", projectRootDir,
     "-B", targetBuildDir,
-    "-G", f"{cmakeGenerator}",
-    "-D", f"CMAKE_CXX_COMPILER={cpp_compiler}",
-    "-D", f"CMAKE_C_COMPILER={c_compiler}",
+    "-G", f"{args.cmakeGenerator}",
+    "-T", f"{cmakeToolset}",
     "-D", f"CMAKE_TOOLCHAIN_FILE={vcpkgCmakeFile}",
     "-D", f"VCPKG_TARGET_TRIPLET={vcpkgTargetTriplet}",
     "-D", f"ENABLE_CLANG_TIDY:BOOL={enableClangTidyFlag}",
+    "-D", "CMAKE_EXPORT_COMPILE_COMMANDS=ON",
     f"--log-level={cmakeLogLevel}",
 ]
 

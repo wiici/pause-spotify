@@ -10,11 +10,11 @@ public:
 
     ~AppConfiguration() = default;
 
-    bool isDebugEnabled() const;
-    std::string_view getToken() const;
-    std::string_view getInteractionTypeStr() const;
+    auto IsDebugEnabled() const -> bool;
+    auto GetToken() const -> std::string;
+    auto GetInteractionTypeStr() const -> std::string;
 
 private:
-    boost::program_options::options_description m_desc;
-    boost::program_options::variables_map m_vars;
+    boost::program_options::options_description m_Desc;
+    boost::program_options::variables_map m_Vars;
 };

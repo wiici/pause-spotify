@@ -1,30 +1,25 @@
 #include "application.hpp"
-#include "com_exception.hpp"
+#include "com_error.hpp"
 
 #include <iostream>
 #include <span>
-#include <Windows.h>
 
 int main(int argc, char* argv[])
 {
     SetThreadDescription(GetCurrentThread(), L"MainThread");
 
-    try
-    {
-        const std::span<char*> args(argv, (size_t)argc);
-        const AppConfiguration appConfig(args);
+    const auto hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (FAILED(hr)) {
+        std::cerr << "Failed to initialize COM library: "
+                  << ComError(hr).GetErrorMessage() << "\n";
+        return -1;
+    }
 
-        Application app(appConfig);
-        app.run();
-    }
-    catch (const ComException& e)
-    {
-        std::cerr << e.what() << "\n";
-        return -1;
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
-        return -1;
-    }
+    const std::span<char*> args(argv, (size_t)argc);
+    const AppConfiguration appConfig(args);
+
+    Application app(appConfig);
+    app.Run();
+
+    CoUninitialize();
 }

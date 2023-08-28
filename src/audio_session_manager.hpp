@@ -1,22 +1,33 @@
 #pragma once
 
 #include "audio_session_list.hpp"
+#include "com_ptr.hpp"
 #include "new_audio_session_notifier.hpp"
 
-#include <memory>
-#include <wrl/client.h>
-
-class AudioSessionManager {
+class AudioSessionsManager {
 public:
-    AudioSessionManager() = delete;
-    AudioSessionManager(IAudioSessionManager2& audioSessionManager2);
+    static auto Create(const ComPtr<IAudioSessionManager2> pAudioSessionManager)
+        -> std::expected<AudioSessionsManager, ComError>;
 
-    ~AudioSessionManager();
+    AudioSessionsManager(const AudioSessionsManager&) = delete;
+    AudioSessionsManager(AudioSessionsManager&&) = default;
+    AudioSessionsManager(const std::shared_ptr<AudioSessionList> pshrInitAudioSessionList,
+                         const ComPtr<IAudioSessionManager2> pAudioSessionManager,
+                         const ComPtr<NewAudioSessionNotifier> pNewAudioSessionNotifier);
+
+    ~AudioSessionsManager();
+
+    AudioSessionsManager& operator=(const AudioSessionsManager&) = delete;
+    AudioSessionsManager& operator=(AudioSessionsManager&&) = default;
 
 private:
-    Microsoft::WRL::ComPtr<IAudioSessionManager2> m_pAudioSessionManager2;
-    Microsoft::WRL::ComPtr<NewAudioSessionNotifier> m_pNewAudioSessionNotifier;
-    std::shared_ptr<AudioSessionList> m_pshrAudioSessions;
+    ComPtr<IAudioSessionManager2> m_pAudioSessionManager;
+    ComPtr<NewAudioSessionNotifier> m_pNewAudioSessionNotifier;
+    std::shared_ptr<AudioSessionList> m_pshrAudioSessionList;
 
-    AudioSessionList getAllAudioSessions();
+    AudioSessionsManager() = delete;
+
+    static auto
+        GetAllAudioSessions(const ComPtr<IAudioSessionManager2> pAudioSessionManager)
+            -> std::expected<std::list<AudioSession>, ComError>;
 };

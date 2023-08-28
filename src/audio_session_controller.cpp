@@ -3,9 +3,9 @@
 #include "com_exception.hpp"
 #include "spotify_app.hpp"
 
-#include <comdef.h>
 #include <psapi.h>
 #include <spdlog/spdlog.h>
+#include <wrl/client.h>
 
 AudioSessionController::AudioSessionController(IAudioSessionControl2* pSessionController)
     : m_pAudioSessionControl2(pSessionController),

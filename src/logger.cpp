@@ -1,10 +1,8 @@
 #include "logger.hpp"
 
-#include "misc.hpp"
-#include "spdlog/pattern_formatter.h"
-
+#include <spdlog/pattern_formatter.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <string>
+#include <spdlog/spdlog.h>
 #include <Windows.h>
 #include <winrt/base.h>
 
@@ -17,22 +15,17 @@ public:
 };
 
 Logger::Logger()
-    : m_consoleLogger(spdlog::stdout_color_mt("console_logger"))
+    : m_ConsoleLogger(spdlog::stdout_color_mt("console_logger"))
 {
     const std::string logPattern = "[%H:%M:%S.%e][%P][%t][%*](%^%l%$): %v";
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
 
     formatter->add_flag<ThreadNameFlag>('*').set_pattern(logPattern);
-    m_consoleLogger->set_formatter(std::move(formatter));
+    m_ConsoleLogger->set_formatter(std::move(formatter));
 
-    m_consoleLogger->flush_on(spdlog::level::critical);
-    m_consoleLogger->flush_on(spdlog::level::err);
-    m_consoleLogger->flush_on(spdlog::level::warn);
-    m_consoleLogger->flush_on(spdlog::level::info);
-    m_consoleLogger->flush_on(spdlog::level::debug);
-    m_consoleLogger->flush_on(spdlog::level::trace);
+    spdlog::set_default_logger(m_ConsoleLogger);
 
-    spdlog::set_default_logger(m_consoleLogger);
+    spdlog::info("Set up default Logger");
 }
 
 Logger::~Logger()
@@ -47,16 +40,16 @@ void ThreadNameFlag::format(const spdlog::details::log_msg&,
     wchar_t* wstrThreadName = nullptr;
     auto hr = GetThreadDescription(GetCurrentThread(), &wstrThreadName);
     std::string threadName = "<unknown>";
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         auto convertedString = winrt::to_string(wstrThreadName);
-        if (not convertedString.empty())
+        if (not convertedString.empty()) {
             threadName = std::move(convertedString);
+        }
 
         LocalFree(wstrThreadName);
     }
 
-    dest.append(threadName.data(), threadName.data() + threadName.size());
+    dest.append(threadName);
 }
 
 std::unique_ptr<spdlog::custom_flag_formatter> ThreadNameFlag::clone() const

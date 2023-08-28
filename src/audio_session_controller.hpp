@@ -2,9 +2,7 @@
 
 #include "misc.hpp"
 #include "nonspotify_audio_session_event_notifier.hpp"
-
-#include <memory>
-#include <wrl/client.h>
+#include "com_ptr.hpp"
 
 class AudioSessionController {
 public:
@@ -19,9 +17,9 @@ public:
     bool isExpired() const;
 
 private:
-    Microsoft::WRL::ComPtr<IAudioSessionControl2> m_pAudioSessionControl2;
+    ComPtr<IAudioSessionControl2> m_pAudioSessionControl2;
     pid_t m_relatedPID = 0;
-    Microsoft::WRL::ComPtr<NonSpotifyAudioSessionEventNotifier> m_pAudioSessionNotifier;
+    ComPtr<NonSpotifyAudioSessionEventNotifier> m_pAudioSessionNotifier;
     std::string m_relatedProcessName = "<unknown>";
 
     pid_t retrieveRelatedPID();

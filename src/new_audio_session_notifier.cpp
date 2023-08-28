@@ -2,32 +2,26 @@
 
 #include "misc.hpp"
 
-#include <comdef.h>
-#include <psapi.h>
 #include <spdlog/spdlog.h>
-#include <wrl/client.h>
 
 namespace wrl = Microsoft::WRL;
 
-std::mutex NewAudioSessionNotifier::mtx;
-
 NewAudioSessionNotifier::NewAudioSessionNotifier(
     std::shared_ptr<AudioSessionList>& pshrAudioSessions)
-    : m_pshrAudioSessions(pshrAudioSessions)
+    : m_pshrAudioSessionList(pshrAudioSessions)
 {
-    SPDLOG_DEBUG("Creating instance of NewAudioSessionNotifier {}", fmt::ptr(this));
+    spdlog::debug("Creating instance of NewAudioSessionNotifier");
 }
 
-HRESULT NewAudioSessionNotifier::CreateInstance(
-    std::shared_ptr<AudioSessionList>& pshrAudioSessions,
-    NewAudioSessionNotifier** ppNewAudioSessionNotifier)
+auto NewAudioSessionNotifier::CreateInstance(
+    std::shared_ptr<AudioSessionList> pshrAudioSessionList,
+    NewAudioSessionNotifier** ppNewAudioSessionNotifier) -> HRESULT
 {
     HRESULT hr = S_OK;
 
-    auto* pNewAudioSessionNotifier = new NewAudioSessionNotifier(pshrAudioSessions);
+    auto* pNewAudioSessionNotifier = new NewAudioSessionNotifier(pshrAudioSessionList);
 
-    if (pNewAudioSessionNotifier == nullptr)
-    {
+    if (pNewAudioSessionNotifier == nullptr) {
         hr = E_OUTOFMEMORY;
 
         goto err;
@@ -43,20 +37,17 @@ err:
     return hr;
 }
 
-HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
+auto NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv) -> HRESULT
 {
-    if (riid == IID_IUnknown)
-    {
+    if (riid == IID_IUnknown) {
         AddRef();
         *ppv = static_cast<IUnknown*>(this);
     }
-    else if (riid == __uuidof(IAudioSessionNotification))
-    {
+    else if (riid == __uuidof(IAudioSessionNotification)) {
         AddRef();
         *ppv = static_cast<IAudioSessionNotification*>(this);
     }
-    else
-    {
+    else {
         *ppv = nullptr;
         return E_NOINTERFACE;
     }
@@ -64,24 +55,23 @@ HRESULT NewAudioSessionNotifier::QueryInterface(REFIID riid, void** ppv)
     return S_OK;
 }
 
-unsigned long NewAudioSessionNotifier::AddRef()
+auto NewAudioSessionNotifier::AddRef() -> unsigned long
 {
-    SPDLOG_TRACE("NewAudioSessionNotifier::AddRef: m_refCounter {} -> {} for <{}>",
-                 m_refCounter, m_refCounter + 1, fmt::ptr(this));
+    spdlog::trace("NewAudioSessionNotifier::AddRef: m_RefCounter {} -> {} for <{}>",
+                  m_RefCounter, m_RefCounter + 1, fmt::ptr(this));
 
-    return InterlockedIncrement(&m_refCounter);
+    return InterlockedIncrement(&m_RefCounter);
 }
 
-unsigned long NewAudioSessionNotifier::Release()
+auto NewAudioSessionNotifier::Release() -> unsigned long
 {
-    SPDLOG_TRACE("NewAudioSessionNotifier::Release: m_refCounter {} -> {} for <{}>",
-                 m_refCounter, m_refCounter - 1, fmt::ptr(this));
+    spdlog::trace("NewAudioSessionNotifier::Release: m_RefCounter {} -> {} for <{}>",
+                  m_RefCounter, m_RefCounter - 1, fmt::ptr(this));
 
-    auto newRefVal = InterlockedDecrement(&m_refCounter);
-    if (newRefVal == 0)
-    {
-        SPDLOG_DEBUG("Going to release NewAudioSessionNotifier object {}",
-                     fmt::ptr(this));
+    auto newRefVal = InterlockedDecrement(&m_RefCounter);
+    if (newRefVal == 0) {
+        spdlog::debug("Going to release NewAudioSessionNotifier object {}",
+                      fmt::ptr(this));
 
         delete this;
     }
@@ -89,24 +79,25 @@ unsigned long NewAudioSessionNotifier::Release()
     return newRefVal;
 }
 
-HRESULT NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSession)
+auto NewAudioSessionNotifier::OnSessionCreated(IAudioSessionControl* pNewSession)
+    -> HRESULT
 {
-    wrl::ComPtr<IAudioSessionControl2> pNewSessionControl2;
+    SetThreadDescription(GetCurrentThread(), L"NewAudioSessionNotifier");
+    spdlog::debug("Receive event about new audio session");
+
+    ComPtr<IAudioSessionControl2> pNewSessionControl2;
     auto hr =
         pNewSession->QueryInterface(IID_PPV_ARGS(pNewSessionControl2.GetAddressOf()));
 
-    if (FAILED(hr))
-    {
-        spdlog::warn("Failed to query interface to acquire "
-                     "IAudioSessionControl2. Reason is \"{}\"",
-                     _com_error(hr).ErrorMessage());
+    if (FAILED(hr)) {
+        spdlog::warn("Failed to query interface to acquire IAudioSessionControl2: {}",
+                     ComError(hr).GetErrorMessage());
 
         return E_FAIL;
     }
 
-    std::lock_guard lock(NewAudioSessionNotifier::mtx);
-    AddAudioSessionIfNotExist(*m_pshrAudioSessions,
-                              AudioSessionController(pNewSessionControl2.Detach()));
+    m_pshrAudioSessionList->RemoveExpiredSessions();
+    m_pshrAudioSessionList->AddAudioSession({ pNewSessionControl2.Detach() });
 
     return S_OK;
 }

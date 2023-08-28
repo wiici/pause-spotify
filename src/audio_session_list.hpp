@@ -1,13 +1,22 @@
 #pragma once
 
-#include "audio_session_controller.hpp"
+#include "audio_session.hpp"
 
 #include <list>
 
-using AudioSessionList = std::list<AudioSessionController>;
+class AudioSessionList {
+public:
+    AudioSessionList() = default;
+    AudioSessionList(std::list<AudioSession>&& initList);
 
-bool IsPidAlreadyInList(const AudioSessionList& audioSessions, const pid_t pid);
-void AddAudioSessionIfNotExist(AudioSessionList& audioSessions,
-                               AudioSessionController&& newAudioSession);
-void RemoveExpiredSessions(AudioSessionList& audioSessions);
-void PrintAllAudioSessionsInfo(const AudioSessionList& audioSessions);
+    ~AudioSessionList() = default;
+
+    auto IsPidAlreadyInList(const pid_t pid) -> bool;
+    void AddAudioSession(AudioSession&& newAudioSession);
+    void RemoveExpiredSessions();
+    void PrintAudioSessionsInfo();
+
+private:
+    std::mutex m_mtx;
+    std::list<AudioSession> m_AudioSessions;
+};
